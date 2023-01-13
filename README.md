@@ -15,7 +15,7 @@ This repository is intended to be a starting point for new projects and can be e
 > Never use it in production!
 
 ## Getting Started
-1. Clone the repository: git clone https://github.com/YOUR-USERNAME/YOUR-REPOSITORY
+1. Clone the repository: git clone https://github.com/rdurica/php_starter_kit.git
 2. Build the Docker image: docker-compose build
 3. Run the Docker container: docker-compose up -d
 4. Access the application in your browser at http://localhost:8000
