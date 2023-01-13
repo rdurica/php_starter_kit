@@ -9,9 +9,9 @@ RUN apt-get -y update && apt-get -y upgrade && apt-get -y install \
     curl \
     zip \
     git \
-    zlib1g-dev \
-    libzip-dev \
-RUN apt-get -y clean && autoclean && autoremove
+    zlib1g-dev
+
+RUN apt-get -y clean && apt-get -y autoclean && apt-get -y autoremove
 
 # xdebug
 RUN pecl install xdebug && docker-php-ext-enable xdebug
