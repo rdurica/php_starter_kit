@@ -10,6 +10,8 @@ RUN apt-get -y update && apt-get -y upgrade && apt-get -y install \
     zip \
     git \
     zlib1g-dev
+    
+RUN docker-php-ext-install pdo pdo_mysql mysqli
 
 RUN apt-get -y clean && apt-get -y autoclean && apt-get -y autoremove
 
