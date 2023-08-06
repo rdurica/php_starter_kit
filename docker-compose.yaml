@@ -1,13 +1,21 @@
 version: '3'
 
 services:
-  app_name:
+  app:
     build:
-      dockerfile: build/Dockerfile
+      dockerfile: build/dev/Dockerfile
+    container_name: app_name
     ports:
-      - 8000:80
+      - 443:443
     volumes:
       - .:/app/
-      - ./build/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-      - ./build/error_reporting.ini:/usr/local/etc/php/conf.d/error_reporting.ini
+      - ./build/dev/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+      - ./build/dev/error_reporting.ini:/usr/local/etc/php/conf.d/error_reporting.ini
+    env_file:
+      - ./build/dev/example.env
+    networks:
+      - database_default
+networks:
+  database_default:
+    external: true
 

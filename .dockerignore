@@ -1,0 +1,13 @@
+.idea
+.git
+.github
+build/dev/cert
+build/dev/example.env
+src/log
+src/temp
+.gitignore
+.dockerignore
+docker-compose.yaml
+Dockerfile
+LICENSE
+README.MD

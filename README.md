@@ -25,12 +25,6 @@ This repository is intended to be a starting point for new projects and can be e
 - Composer: A package manager for PHP that makes it easy to manage dependencies.
 - Xdebug: A debugging tool for PHP that allows you to step through code and inspect variables.
 
-## Next Steps
-- Add your PHP code to the <code>src</code> directory.
-- Use Composer to manage dependencies.
-- Configure Xdebug in your development environment.
-- Update the README.md file with information about your specific application.
-
 ## Contributing
 If you would like to contribute to this project, please fork the repository and create a pull request. We welcome all contributions, including bug fixes, new features, and documentation improvements.
 

@@ -10,3 +10,8 @@ Thumbs.db
 # IDE files
 *.idea
 *.vscode
+build/dev/cert
+
+#Nette
+src/temp
+src/log
