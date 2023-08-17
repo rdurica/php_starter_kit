@@ -22,6 +22,7 @@ RUN a2enmod rewrite
 
 COPY build/test/vhost.conf /etc/apache2/sites-available/000-default.conf
 COPY build/test/.htaccess /app/www/.htaccess
+COPY build/test/php.ini /usr/local/etc/php/php.ini
 
 # OPCACHE
 ENV PHP_OPCACHE_VALIDATE_TIMESTAMPS="0" \

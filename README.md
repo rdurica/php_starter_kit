@@ -11,9 +11,6 @@ The starter kit is built on the latest stable version of PHP and includes all th
 
 This repository is intended to be a starting point for new projects and can be easily customized to fit the specific needs of your project.
 
-> **Warning**
-> Never use it in production!
-
 ## Getting Started
 1. Clone the repository: git clone https://github.com/rdurica/php_starter_kit.git
 2. Build the Docker image: docker-compose build

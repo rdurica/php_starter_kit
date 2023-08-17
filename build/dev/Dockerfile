@@ -26,5 +26,14 @@ RUN a2enmod ssl && a2enmod socache_shmcb
 RUN a2enmod rewrite
 
 COPY build/dev/vhost.conf /etc/apache2/sites-available/000-default.conf
+COPY build/dev/php.ini /usr/local/etc/php/php.ini
 
 WORKDIR /app/src
+
+RUN mkdir log
+RUN mkdir temp
+RUN mkdir temp/cache
+RUN chmod -R 777 log
+RUN chmod -R 777 temp
+RUN chmod -R 777 /www-data
+RUN chown -R 1000:1000 /app/src

@@ -1,6 +1,7 @@
 .idea
 .git
 .github
+upload
 build/dev/cert
 build/dev/example.env
 src/log
