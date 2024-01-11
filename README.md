@@ -1,5 +1,5 @@
 # PHP Starter Kit
-[![PHP](https://img.shields.io/badge/PHP-8.2-blue.svg)](http://php.net)
+[![PHP](https://img.shields.io/badge/PHP-8.3-blue.svg)](http://php.net)
 [![Docker](https://img.shields.io/badge/Docker-powered-blue.svg)](https://www.docker.com/)
 [![composer](https://img.shields.io/badge/composer-latest-green.svg)](https://getcomposer.org/)
 

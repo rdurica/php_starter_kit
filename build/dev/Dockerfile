@@ -1,4 +1,4 @@
-FROM php:8.2-apache
+FROM php:8.3-apache
 
 ENV TZ=Europe/Prague
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
