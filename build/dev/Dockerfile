@@ -17,7 +17,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN apt-get -y clean && apt-get -y autoclean && apt-get -y autoremove
 
 # xdebug
-RUN pecl install xdebug && docker-php-ext-enable xdebug
+#RUN pecl install xdebug && docker-php-ext-enable xdebug
 
 RUN a2enmod ssl && a2enmod socache_shmcb && a2enmod rewrite
 
