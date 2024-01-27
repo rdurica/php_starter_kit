@@ -1,15 +1,18 @@
 FROM php:8.3-apache
 
+# Timezone
 ENV TZ=Europe/Prague
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
+# OS updates and installation of packages
 RUN apt-get -y update && apt-get -y upgrade && apt-get -y install \
     curl \
     zip \
     git \
     zlib1g-dev \
     libzip-dev \
-    libicu-dev g++
+    libicu-dev g++ \
+    vim
 
 RUN docker-php-ext-install pdo pdo_mysql mysqli && docker-php-ext-configure intl && docker-php-ext-install intl && docker-php-ext-install opcache
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
