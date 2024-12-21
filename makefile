@@ -25,7 +25,7 @@ logs: ## Show live logs
 	@$(DOCKER_COMP) logs --tail=0 --follow
 
 sh:
-	@$(PHP_CONT) sh
+	@$(PHP_CONT) bash
 
 ## Utils
 cert:

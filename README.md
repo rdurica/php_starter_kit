@@ -29,7 +29,7 @@ After initial instalation you can use these commands:
 - **make up:** Docker compose up -d
 - **make down:** Docker compose down
 - **make logs:** Show logs
-- **make sh:** docker exec -it <app> /bin/sh
+- **make sh:** docker exec -it <app> /bin/bash
 
 
 ## Included Tools
