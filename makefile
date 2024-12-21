@@ -2,7 +2,6 @@
 DOCKER_COMP = docker compose
 PHP      = $(PHP_CONT) php
 PHP_CONT = $(DOCKER_COMP) exec php-fpm
-SYMFONY  = $(PHP) bin/console
 
 ## Cert
 init:
