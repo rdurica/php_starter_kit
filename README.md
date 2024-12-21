@@ -1,12 +1,12 @@
 # PHP Starter Kit
 
-[![PHP](https://img.shields.io/badge/PHP-8.3-blue.svg)](http://php.net)
+[![PHP](https://img.shields.io/badge/PHP-8.4-blue.svg)](http://php.net)
 [![Docker](https://img.shields.io/badge/Docker-powered-blue.svg)](https://www.docker.com/)
 [![composer](https://img.shields.io/badge/composer-latest-green.svg)](https://getcomposer.org/)
 
 ![php8](https://github.com/rdurica/php_starter_kit/assets/16089770/4430bff1-85af-474a-91ac-80f560c923d8)
-"PHP Starter Kit" is a blank PHP application template that includes a Docker image pre-configured with PHP, Composer,
-Opcache with JIT.
+"PHP Starter Kit" is a blank PHP application template that includes a Docker image pre-configured with PHP-FPM, Nginx(DEV), Composer,
+Opcache with JIT, SSL for local developent.
 
 ## Overview
 
@@ -15,22 +15,22 @@ team of developers or deploying to production. With this starter kit, developers
 about the underlying setup.
 
 The starter kit is built on the latest stable version of PHP and includes all the necessary extensions and libraries to
-get you going. Additionally, it provides the ability to easily install and manage dependencies using Composer, and the
-ability to debug your application using Xdebug.
-
-This repository is intended to be a starting point for new projects and can be easily customized to fit the specific
+get you going. This repository is intended to be a starting point for new projects and can be easily customized to fit the specific
 needs of your project.
-
-## Aliases
-- **ll**: ls -lah
-- **c**: composer
 
 ## Getting Started
 
 1. Clone the repository: git clone https://github.com/rdurica/php_starter_kit.git
-2. Build the Docker image: docker-compose build
-3. Run the Docker container: docker-compose up -d
-4. Access the application in your browser at http://localhost:8000
+2. Build the Docker image, ssl certificates: `make init`
+4. Access the application in your browser at https://robbyte.local/
+
+After initial instalation you can use these commands:
+- **make buildimage:** rebuild docker image
+- **make up:** Docker compose up -d
+- **make down:** Docker compose down
+- **make logs:** Show logs
+- **make sh:** docker exec -it <app> /bin/sh
+
 
 ## Included Tools
 

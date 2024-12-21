@@ -1,14 +1,15 @@
 .idea
 .git
 .github
-upload
 build/dev/cert
 build/dev/example.env
 src/log
 src/temp
+upload
 .gitignore
 .dockerignore
-docker-compose.yaml
 Dockerfile
 LICENSE
+compose.yaml
+makefile
 README.MD
