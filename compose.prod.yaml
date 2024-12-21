@@ -1,0 +1,9 @@
+services:
+  php-fpm:
+    build:
+      context: .
+      dockerfile: build/dev/Dockerfile
+    volumes:
+      - ./src:/app/src
+    expose:
+      - 9000
