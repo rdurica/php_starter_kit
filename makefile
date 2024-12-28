@@ -31,3 +31,14 @@ sh:
 cert:
 	openssl req -x509 -newkey rsa:2048 -keyout build/dev/certs/server.key -out build/dev/certs/server.crt -days 3650 -nodes \
     		  -subj "/C=CZ/ST=Praha/L=Praha/O=LocalOrg/CN=localhost"
+
+## Manifest for k8s
+TEMPLATE = build/prod/manifest-template.yaml
+OUTPUT_DIR = .
+.PHONY: manifest clean
+
+manifest:
+	@echo "Generating manifest for $(app_name) ..."
+	cp $(TEMPLATE) $(OUTPUT_DIR)/manifest.yaml && \
+	sed -i "s/{{APP_NAME}}/$(app_name)/g" $(OUTPUT_DIR)/manifest.yaml && \
+	sed -i "s|{{APP_SECRET}}|$(shell openssl rand -base64 32)|g" $(OUTPUT_DIR)/manifest.yaml

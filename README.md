@@ -30,8 +30,9 @@ After initial instalation you can use these commands:
 - **make down:** Docker compose down
 - **make logs:** Show logs
 - **make sh:** docker exec -it <app> /bin/bash
+- **make manifest app_name=<$name>:** Generate example manifest for k8s. (for example make manifest app_name=app1).
 
-By default nginx pointing to `/src/public` folder
+By default nginx pointing to `/src/public` folder.
 
 
 ## Contributing

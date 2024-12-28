@@ -2,7 +2,7 @@ services:
   php-fpm:
     build:
       context: .
-      dockerfile: build/dev/Dockerfile
+      dockerfile: build/prod/Dockerfile
     volumes:
       - ./src:/app/src
     expose:

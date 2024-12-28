@@ -16,3 +16,6 @@ build/dev/certs
 src/temp
 src/log
 upload
+
+# K8s
+manifest.yaml
