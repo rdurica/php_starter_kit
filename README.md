@@ -22,7 +22,7 @@ needs of your project.
 
 1. Clone the repository: git clone https://github.com/rdurica/php_starter_kit.git
 2. Build the Docker image, ssl certificates: `make init`
-4. Access the application in your browser at https://robbyte.local/
+4. Access the application in your browser at https://localhost
 
 After initial instalation you can use these commands:
 - **make buildimage:** rebuild docker image
@@ -31,14 +31,8 @@ After initial instalation you can use these commands:
 - **make logs:** Show logs
 - **make sh:** docker exec -it <app> /bin/bash
 
+By default nginx pointing to `/src/public` folder
 
-## Included Tools
-
-- PHP: The programming language used to build the application.
-- Composer: A package manager for PHP that makes it easy to manage dependencies.
-
-xdebug is by default disabled. You can enable it by uncoment xdebug section in dockerfile. Installing of xdebug will
-remove JIT compiler.
 
 ## Contributing
 

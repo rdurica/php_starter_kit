@@ -23,7 +23,7 @@ RUN curl -sS https://get.symfony.com/cli/installer | bash -s -- --install-dir=/u
     && chmod +x /usr/local/bin/symfony
 
 COPY build/dev/php.ini /usr/local/etc/php/php.ini
-COPY build/dev/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
+COPY build/dev/php-fpm.conf /usr/local/etc/php-fpm.d/app.conf
 
 RUN echo 'alias ll="ls -lah"' >> /home/robbyte/.bashrc && \
     echo 'alias c="composer"' >> /home/robbyte/.bashrc && \
