@@ -25,12 +25,19 @@ spec:
       containers:
         - name: {{APP_NAME}}
           image: rdurica/{{APP_NAME}}:latest
-          imagePullPolicy: Always
           envFrom:
             - configMapRef:
                 name: {{APP_NAME}}-config
-          ports:
-            - containerPort: 9000
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - "/bin/bash"
+                  - "-c"
+                  - |
+                    echo "Dump .env file" &&
+                    echo "------------------------------------------------------------------------------" &&
+                    composer dump-env prod
 ---
 apiVersion: v1
 kind: Service
