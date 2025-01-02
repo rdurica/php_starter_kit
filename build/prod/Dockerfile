@@ -12,7 +12,7 @@ RUN apk update && apk add --no-cache \
     zlib-dev \
     libxml2-dev \
     icu-dev \
-    && rm -rf /var/cache/apk/* \
+    && rm -rf /var/cache/apk/*
 
 RUN docker-php-ext-install pdo pdo_mysql mysqli zip intl opcache bcmath && \
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
