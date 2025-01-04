@@ -20,10 +20,6 @@ RUN apk update && apk add --no-cache \
 RUN docker-php-ext-install pdo pdo_mysql mysqli zip intl opcache bcmath && \
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-RUN curl -sS https://get.symfony.com/cli/installer | bash -s -- --install-dir=/usr/local/bin \
-    && mv /usr/local/bin/symfony* /usr/local/bin/symfony \
-    && chmod +x /usr/local/bin/symfony
-
 COPY build/prod/php/php.ini /usr/local/etc/php/php.ini
 COPY build/prod/php/php-fpm.conf /usr/local/etc/php-fpm.d/app.conf
 COPY build/prod/nginx/nginx.conf /etc/nginx/nginx.conf
