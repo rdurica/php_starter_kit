@@ -6,6 +6,8 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN adduser -D -u 1000 -s /bin/sh robbyte
 
 RUN apk update && apk add --no-cache \
+    supervisor \
+    nginx \
     bash \
     curl \
     git \
@@ -22,19 +24,26 @@ RUN curl -sS https://get.symfony.com/cli/installer | bash -s -- --install-dir=/u
     && mv /usr/local/bin/symfony* /usr/local/bin/symfony \
     && chmod +x /usr/local/bin/symfony
 
-COPY build/dev/php.ini /usr/local/etc/php/php.ini
-COPY build/dev/php-fpm.conf /usr/local/etc/php-fpm.d/app.conf
+COPY build/dev/php/php.ini /usr/local/etc/php/php.ini
+COPY build/dev/php/php-fpm.conf /usr/local/etc/php-fpm.d/app.conf
+COPY build/dev/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY build/dev/nginx/default.conf /etc/nginx/http.d/default.conf
+COPY build/dev/supervisord/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY build/dev/supervisord/start.sh /usr/local/bin/start.sh
+
+RUN addgroup robbyte nginx
+RUN mkdir -p /var/lib/nginx && \
+    chown -R robbyte:robbyte /var/log/nginx && \
+    chown -R robbyte:robbyte /var/lib/nginx
 
 RUN echo 'alias ll="ls -lah"' >> /home/robbyte/.bashrc && \
     echo 'alias c="composer"' >> /home/robbyte/.bashrc && \
-    echo "PS1='\e[92m\u\e[0m@\e[94m\h\e[0m:\e[35m\w\e[0m# '" >> /home/robbyte/.bashrc \
-    chown -R robbyte:robbyte /app/src
-
-USER robbyte
-WORKDIR /app/src
+    echo "PS1='\e[92m\u\e[0m@\e[94m\h\e[0m:\e[35m\w\e[0m# '" >> /home/robbyte/.bashrc
 
 COPY ./src .
 
-EXPOSE 9000
+WORKDIR /app/src
+RUN chown -R robbyte:robbyte /app/src
+USER robbyte
 
-CMD ["php-fpm"]
+CMD ["/usr/local/bin/start.sh", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

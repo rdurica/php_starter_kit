@@ -5,12 +5,5 @@ services:
       dockerfile: build/test/Dockerfile
     volumes:
       - ./src:/app/src
-    expose:
-      - 9000
-
-  nginx:
-    build:
-      context: .
-      dockerfile: build/test/Dockerfile-nginx
     ports:
       - 443:443

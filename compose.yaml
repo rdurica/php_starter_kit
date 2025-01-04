@@ -5,14 +5,6 @@ services:
       dockerfile: build/dev/Dockerfile
     volumes:
       - ./src:/app/src
-    expose:
-      - 9000
-
-  nginx:
-    build:
-      context: .
-      dockerfile: build/dev/Dockerfile-nginx
-    volumes:
       - ./build/dev/certs:/etc/nginx/certs
     ports:
       - 443:443
