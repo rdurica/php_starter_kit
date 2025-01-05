@@ -25,6 +25,10 @@ spec:
       containers:
         - name: {{APP_NAME}}
           image: rdurica/{{APP_NAME}}:latest
+          volumeMounts:
+            - name: certs
+              mountPath: "/etc/nginx/certs"
+              readOnly: true
           envFrom:
             - configMapRef:
                 name: {{APP_NAME}}-config
@@ -38,6 +42,11 @@ spec:
                     echo "Dump .env file" &&
                     echo "------------------------------------------------------------------------------" &&
                     composer dump-env prod
+      volumes:
+        - name: certs
+          secret:
+            secretName: {{APP_NAME}}-cloudflare-tls
+
 ---
 apiVersion: v1
 kind: Service
@@ -49,6 +58,53 @@ spec:
     app: {{APP_NAME}}
   ports:
     - protocol: TCP
-      port: 9000
-      targetPort: 9000
+      port: 443
+      targetPort: 443
   clusterIP: None
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{APP_NAME}}-tls
+spec:
+  duration: 2160h # 90d
+  renewBefore: 360h # 15d
+  subject:
+    organizations:
+      - robbyte.net
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 2048
+  dnsNames:
+    - {{APP_NAME}}.robbyte.net
+  secretName: {{APP_NAME}}-cloudflare-tls
+  issuerRef:
+    name: prod-issuer
+    kind: OriginIssuer
+    group: cert-manager.k8s.cloudflare.com
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{APP_NAME}}-ingress
+  namespace: apps
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+spec:
+  tls:
+    - secretName: {{APP_NAME}}-cloudflare-tls
+      hosts:
+        - {{APP_NAME}}.robbyte.net
+  rules:
+    - host: {{APP_NAME}}.robbyte.net
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{APP_NAME}}
+                port:
+                  number: 443
