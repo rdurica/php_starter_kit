@@ -15,9 +15,13 @@ RUN apk update && apk add --no-cache \
     zlib-dev \
     libxml2-dev \
     icu-dev \
+    libjpeg-turbo-dev \
+    libpng-dev \
+    libwebp-dev \
     && rm -rf /var/cache/apk/*
 
-RUN docker-php-ext-install pdo pdo_mysql mysqli zip intl opcache bcmath && \
+RUN docker-php-ext-configure gd --with-jpeg --with-webp && \
+    docker-php-ext-install gd pdo pdo_mysql mysqli zip intl opcache bcmath && \
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 RUN curl -sS https://get.symfony.com/cli/installer | bash -s -- --install-dir=/usr/local/bin \
