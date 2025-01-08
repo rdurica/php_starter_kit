@@ -17,29 +17,30 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@v4
-
-      - name: Cache Composer packages
+      -
+        name: Clear Docker Build Cache
+        run: docker builder prune --all --force
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      -
+        name: Cache Composer packages
         id: composer-cache
         uses: actions/cache@v3
         with:
-          path: vendor
-          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-docker-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-php-
-
-      - name: Validate composer.json and composer.lock
-        run: composer validate --strict
-        working-directory: ./src
-
-      - name: Setup PHP
+            ${{ runner.os }}-docker-
+      -
+        name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-
-      - name: Install dependencies
+      -
+        name: Install dependencies
         run: composer install --prefer-dist --no-progress
         working-directory: ./src
-
       -
         name: Build Docker images
         uses: docker/bake-action@v4
@@ -47,23 +48,19 @@ jobs:
           pull: true
           load: true
           files: |
-            compose.yaml
-            compose.override.yaml
+            compose.prod.yaml
           set: |
             *.cache-from=type=gha,scope=${{github.ref}}
             *.cache-from=type=gha,scope=refs/heads/main
-            *.cache-to=type=gha,scope=${{github.ref}},mode=max
+            *.cache-to=type=gha,scope=${{github.sha}},mode=max
       -
-        name: Start services
-        run: docker compose up --wait
-
-      - name: Login to DockerHub
+        name: Login to DockerHub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Push Docker Image
+      -
+        name: Push Docker Image
         uses: docker/bake-action@v4
         with:
           pull: true
@@ -74,7 +71,4 @@ jobs:
             *.tags=${{ env.APP_NAME }}:${{ github.ref_name }}
             *.tags=${{ env.APP_NAME }}:latest
             *.cache-from=type=gha,scope=refs/heads/main
-            *.cache-to=type=gha,scope=${{ github.ref }},mode=max
-
-      - name: Push Image Confirmation
-        run: echo "Docker image successfully built and pushed."
+            *.cache-to=type=gha,scope=${{ github.sha }},mode=max
