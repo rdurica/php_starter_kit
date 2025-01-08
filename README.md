@@ -6,22 +6,25 @@
 
 ![php8](https://github.com/user-attachments/assets/265bf808-0e8e-40a8-87fe-f473a708208d)
 
-"PHP Starter Kit" is a blank PHP application template that includes a Docker image pre-configured with PHP-FPM, Nginx, Composer,
-Opcache with JIT, SSL for local developent.
+"PHP Starter Kit" is a blank  preconfigured docker template for building PHP applications.
 
 ## Overview
 
-The Docker image provides a consistent and reproducible environment, which is particularly useful when working with a
-team of developers or deploying to production. With this starter kit, developers can focus on writing code and not worry
-about the underlying setup.
-
 The starter kit is built on the latest stable version of PHP and includes all the necessary extensions and libraries to
-get you going. This repository is intended to be a starting point for new projects and can be easily customized to fit the specific
-needs of your project.
+get you started. This repository is intended to be a starting point for new projects and can be easily customized to fit
+the specific needs of your project. With this starter kit, developers can focus on writing code and not worry
+about the underlying setup. 
+
+Key aspects of the starter kit:
+ - The Docker image is based on latest php-fpm-alpine with NGINX (using UNIX sockets).
+ - Minimal image size while still providing all the necessary tools and extensions (~65 MB).
+ - Dedicated network `apps` for local development.
+ - SSL (HTTP/2) for localhost
+ - Makefile for easy management of the Docker container.
 
 ## Getting Started
 
-1. Clone the repository: git clone https://github.com/rdurica/php_starter_kit.git
+1. Clone the repository: `git clone https://github.com/rdurica/php_starter_kit.git`
 2. Build the Docker image, ssl certificates: `make init`
 4. Access the application in your browser at https://localhost
 
