@@ -4,7 +4,8 @@
 [![Docker](https://img.shields.io/badge/Docker-powered-blue.svg)](https://www.docker.com/)
 [![composer](https://img.shields.io/badge/composer-latest-green.svg)](https://getcomposer.org/)
 
-![php8](https://github.com/rdurica/php_starter_kit/assets/16089770/4430bff1-85af-474a-91ac-80f560c923d8)
+![php8](https://github.com/user-attachments/assets/265bf808-0e8e-40a8-87fe-f473a708208d)
+
 "PHP Starter Kit" is a blank PHP application template that includes a Docker image pre-configured with PHP-FPM, Nginx(DEV), Composer,
 Opcache with JIT, SSL for local developent.
 
@@ -25,7 +26,7 @@ needs of your project.
 4. Access the application in your browser at https://localhost
 
 After initial instalation you can use these commands:
-- **make buildimage:** rebuild docker image
+- **make rebuild:** rebuild docker image
 - **make up:** Docker compose up -d
 - **make down:** Docker compose down
 - **make logs:** Show logs
@@ -33,7 +34,6 @@ After initial instalation you can use these commands:
 - **make manifest app_name=<$name>:** Generate example manifest for k8s. (for example make manifest app_name=app1).
 
 By default nginx pointing to `/src/public` folder.
-
 
 ## Contributing
 

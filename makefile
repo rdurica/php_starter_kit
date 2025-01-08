@@ -5,8 +5,9 @@ PHP_CONT = $(DOCKER_COMP) exec php-fpm
 
 ## Initialize containers
 init:
-	if [ ! -f build/dev/certs/server.key ]; then openssl req -x509 -newkey rsa:2048 -keyout build/dev/certs/server.key -out build/dev/certs/server.crt -days 3650 -nodes \
-		  -subj "/C=CZ/ST=Praha/L=Praha/O=LocalOrg/CN=localhost"; fi
+	if [ ! -f build/dev/certs/tls.crt ]; then openssl req -x509 -newkey rsa:4096 -keyout build/dev/certs/tls.key -out build/dev/certs/tls.crt -days 3650 -nodes \
+		  -config build/dev/certs/ssl.conf; fi
+		  docker network inspect apps >/dev/null 2>&1 || docker network create apps;
 		  @$(DOCKER_COMP) build --pull --no-cache;
 		  @$(DOCKER_COMP) up --detach; \
   		  mv build/dev/.github .github;
@@ -29,8 +30,7 @@ sh:
 
 ## Utils
 cert:
-	openssl req -x509 -newkey rsa:2048 -keyout build/dev/certs/server.key -out build/dev/certs/server.crt -days 3650 -nodes \
-    		  -subj "/C=CZ/ST=Praha/L=Praha/O=LocalOrg/CN=localhost"
+	openssl req -x509 -newkey rsa:4096 -keyout build/dev/certs/tls.key -out build/dev/certs/tls.crt -days 3650 -nodes -config build/dev/certs/ssl.conf
 
 ## Manifest for k8s
 TEMPLATE = build/prod/manifest-template.yaml
