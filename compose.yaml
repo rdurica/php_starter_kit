@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: build/dev/Dockerfile
+    env_file: ./build/dev/example.env
     volumes:
       - ./src:/app/src
       - ./build/dev/certs:/etc/nginx/certs
