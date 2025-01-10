@@ -9,6 +9,7 @@ services:
       - ./build/dev/certs:/etc/nginx/certs
     ports:
       - 443:443
+      - 80:80
     networks:
       - apps
 
