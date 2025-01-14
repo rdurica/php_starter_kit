@@ -22,6 +22,9 @@ RUN apk update && apk add --no-cache \
     libwebp-dev \
     && rm -rf /var/cache/apk/*
 
+ADD build/dev/certs/tls.crt /usr/local/share/ca-certificates/tls.crt
+RUN update-ca-certificates
+
 RUN docker-php-ext-configure gd --with-jpeg --with-webp && \
     docker-php-ext-install gd pdo pdo_mysql mysqli zip intl opcache bcmath && \
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
