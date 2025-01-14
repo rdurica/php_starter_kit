@@ -21,6 +21,7 @@ Key aspects of the starter kit:
  - Dedicated network `apps` for local development.
  - SSL (HTTP/2) for localhost
  - Makefile for easy management of the Docker container.
+ - Nodejs + npm for dev environment.
 
 ## Getting Started
 
