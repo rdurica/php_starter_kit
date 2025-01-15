@@ -10,7 +10,6 @@ RUN apk update && apk add --no-cache \
     nginx \
     bash \
     curl \
-    git \
     libzip-dev \
     zlib-dev \
     libxml2-dev \
