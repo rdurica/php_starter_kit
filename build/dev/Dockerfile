@@ -1,4 +1,4 @@
-FROM php:8.3-fpm-alpine
+FROM php:8.4-fpm-alpine
 
 ENV TERM=xterm-256color
 ENV TZ=Europe/Prague
