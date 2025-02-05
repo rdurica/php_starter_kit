@@ -39,6 +39,18 @@ spec:
                   - "/bin/bash"
                   - "-c"
                   - |
+                    echo "CI" &&
+                    echo "------------------------------------------------------------------------------" &&
+                    composer install &&                    
+
+                    echo "Doctrine migrations" &&
+                    echo "------------------------------------------------------------------------------" &&
+                    php bin/console doctrine:migrations:migrate --no-interaction &&
+                    
+                    echo "JWT token certificates" &&
+                    echo "------------------------------------------------------------------------------" &&
+                    php bin/console lexik:jwt:generate-keypair &&
+                    
                     echo "Dump .env file" &&
                     echo "------------------------------------------------------------------------------" &&
                     composer dump-env prod
