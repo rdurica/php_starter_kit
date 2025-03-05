@@ -14,6 +14,7 @@ RUN apk update && apk add --no-cache \
     curl \
     git \
     make \
+    linux-headers \
     libpq-dev \
     libzip-dev \
     zlib-dev \
@@ -23,6 +24,11 @@ RUN apk update && apk add --no-cache \
     libpng-dev \
     libwebp-dev \
     && rm -rf /var/cache/apk/*
+
+RUN apk add --no-cache $PHPIZE_DEPS \
+    && pecl install xdebug \
+    && docker-php-ext-enable xdebug \
+    && export PHP_IDE_CONFIG="serverName=localhost"
 
 ADD build/dev/certs/tls.crt /usr/local/share/ca-certificates/tls.crt
 RUN update-ca-certificates
@@ -35,6 +41,7 @@ RUN curl -sS https://get.symfony.com/cli/installer | bash -s -- --install-dir=/u
     && mv /usr/local/bin/symfony* /usr/local/bin/symfony \
     && chmod +x /usr/local/bin/symfony
 
+COPY build/dev/php/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 COPY build/dev/php/php.ini /usr/local/etc/php/php.ini
 COPY build/dev/php/php-fpm.conf /usr/local/etc/php-fpm.d/app.conf
 COPY build/dev/nginx/nginx.conf /etc/nginx/nginx.conf
