@@ -56,6 +56,10 @@ RUN chmod +x /usr/local/bin/start.sh && \
     chown -R robbyte:robbyte /var/lib/nginx && \
     echo 'alias ll="ls -lah"' >> /home/robbyte/.bashrc && \
     echo 'alias c="composer"' >> /home/robbyte/.bashrc && \
+    echo 'alias co="XDEBUG_MODE=off php bin/console"' >> /home/robbyte/.bashrc && \
+    echo 'alias p="XDEBUG_MODE=off php"' >> /home/robbyte/.bashrc && \
+    echo 'alias px="php"' >> /home/robbyte/.bashrc && \
+    echo 'alias cox="php bin/console"' >> /home/robbyte/.bashrc && \
     echo "PS1='\e[92m\u\e[0m@\e[94m\h\e[0m:\e[35m\w\e[0m# '" >> /home/robbyte/.bashrc
 
 WORKDIR /app/src
