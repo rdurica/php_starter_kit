@@ -7,6 +7,7 @@ build/prod/manifest-template.yaml
 manifest.yaml
 src/log
 src/temp
+!src/.env.*
 upload
 .gitignore
 .dockerignore

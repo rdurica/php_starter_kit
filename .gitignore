@@ -15,6 +15,7 @@ build/dev/certs
 #Nette
 src/temp
 src/log
+src/.env.*
 upload
 
 # K8s
