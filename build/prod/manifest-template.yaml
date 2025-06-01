@@ -39,10 +39,6 @@ spec:
                   - "/bin/bash"
                   - "-c"
                   - |
-                    echo "CI" &&
-                    echo "------------------------------------------------------------------------------" &&
-                    composer install &&                    
-
                     echo "Doctrine migrations" &&
                     echo "------------------------------------------------------------------------------" &&
                     php bin/console doctrine:migrations:migrate --no-interaction &&
@@ -72,7 +68,6 @@ spec:
     - protocol: TCP
       port: 443
       targetPort: 443
-  clusterIP: None
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -97,27 +92,19 @@ spec:
     kind: OriginIssuer
     group: cert-manager.k8s.cloudflare.com
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: traefik.io/v1alpha1
+kind: IngressRouteTCP
 metadata:
   name: {{APP_NAME}}-ingress
   namespace: apps
-  annotations:
-    kubernetes.io/ingress.class: "nginx"
-    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
 spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: HostSNI(`{{APP_NAME}}.robbyte.net`)
+      services:
+        - name: {{APP_NAME}}
+          port: 443
+          terminationDelay: 100
   tls:
-    - secretName: {{APP_NAME}}-cloudflare-tls
-      hosts:
-        - {{APP_NAME}}.robbyte.net
-  rules:
-    - host: {{APP_NAME}}.robbyte.net
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: {{APP_NAME}}
-                port:
-                  number: 443
+    passthrough: true
