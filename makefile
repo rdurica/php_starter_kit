@@ -2,11 +2,11 @@
 DOCKER_COMP = docker compose
 PHP      = $(PHP_CONT) php
 PHP_CONT = $(DOCKER_COMP) exec php-fpm
+NODE_CONT = $(DOCKER_COMP) exec node
 
 ## Initialize containers
 init:
-	if [ ! -f build/dev/certs/tls.crt ]; then openssl req -x509 -newkey rsa:4096 -keyout build/dev/certs/tls.key -out build/dev/certs/tls.crt -days 3650 -nodes \
-		  -config build/dev/certs/ssl.conf; fi
+	if [ ! -f build/dev/certs/tls.crt ]; then mkcert -key-file build/dev/certs/tls.key -cert-file build/dev/certs/tls.crt localhost; fi
 		  docker network inspect apps >/dev/null 2>&1 || docker network create apps;
 		  @$(DOCKER_COMP) build --pull --no-cache;
 		  @$(DOCKER_COMP) up --detach; \
@@ -14,7 +14,8 @@ init:
 
 ## Docker
 rebuild: ## Builds the Docker images
-	@$(DOCKER_COMP) build
+	@$(DOCKER_COMP) build --pull --no-cache
+	@$(DOCKER_COMP) up --detach
 
 up: ## Start the docker hub in detached mode (no logs)
 	@$(DOCKER_COMP) up --detach
@@ -25,12 +26,11 @@ down: ## Stop the docker hub
 logs: ## Show live logs
 	@$(DOCKER_COMP) logs --tail=0 --follow
 
-sh:
+php:
 	@$(PHP_CONT) bash
 
-## Utils
-cert:
-	openssl req -x509 -newkey rsa:4096 -keyout build/dev/certs/tls.key -out build/dev/certs/tls.crt -days 3650 -nodes -config build/dev/certs/ssl.conf
+node:
+	@$(NODE_CONT) bash
 
 ## Manifest for k8s
 TEMPLATE = build/prod/manifest-template.yaml

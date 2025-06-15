@@ -8,7 +8,6 @@ RUN adduser -D -u 1000 -s /bin/sh robbyte
 RUN apk update && apk add --no-cache \
     supervisor \
     nginx \
-    nodejs \
     npm \
     bash \
     curl \

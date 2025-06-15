@@ -23,18 +23,32 @@ Key aspects of the starter kit:
  - Makefile for easy management of the Docker container.
  - Nodejs + npm for dev environment.
 
-## Getting Started
+## Supported Frameworks
+This starter kit is ready to use out of the box with popular PHP frameworks such as Laravel, Symfony, and Nette.
 
-1. Clone the repository: `git clone https://github.com/rdurica/php_starter_kit.git`
-2. Build the Docker image, ssl certificates: `make init`
-4. Access the application in your browser at https://localhost
+<p align="left">
+  <img src="https://laravel.com/img/logomark.min.svg" alt="Laravel" width="40" height="40" style="margin-right:10px;">
+  <img src="https://symfony.com/logos/symfony_black_03.png" alt="Symfony" width="40" height="40" style="margin-right:10px;">
+  <img src="https://avatars.githubusercontent.com/u/99965?s=200&v=4" alt="Nette" width="40" height="40">
+</p>
+
+## HTTPS and SSL Certificates
+For local HTTPS development, it is required to have mkcert installed. This tool helps you generate trusted self-signed certificates.
+```shell
+mkcert -install
+```
+
+## Getting Started
+1. Build the Docker image & generate ssl certificates: `make init`
+2. Access the application in your browser at https://localhost
 
 After initial instalation you can use these commands:
-- `make rebuild:` rebuild docker image
-- `make up:` Docker compose up -d
-- `make down:` Docker compose down
-- `make logs:` Show logs
-- `make sh:` docker exec -it <app> /bin/bash
+- `make rebuild:` Rebuild the Docker image
+- `make up:` Start the containers in detached mode (docker-compose up -d)
+- `make down:` DStop and remove containers
+- `make logs:` Show logs from all containers
+- `make php:` Open a shell inside the PHP container
+- `make node:` Open a shell inside the Node.js container
 - `make manifest app_name=<$name>:` Generate example manifest for k8s. (for example make manifest app_name=app1).
 
 By default nginx pointing to `/src/public` folder.
