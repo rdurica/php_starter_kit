@@ -7,6 +7,7 @@ NODE_CONT = $(DOCKER_COMP) exec node
 ## Initialize containers
 init:
 	if [ ! -f build/dev/certs/tls.crt ]; then mkcert -key-file build/dev/certs/tls.key -cert-file build/dev/certs/tls.crt localhost; fi
+		  rm -f src/.gitkeep
 		  docker network inspect apps >/dev/null 2>&1 || docker network create apps;
 		  @$(DOCKER_COMP) build --pull --no-cache;
 		  @$(DOCKER_COMP) up --detach; \
@@ -15,6 +16,10 @@ init:
 ## Docker
 rebuild: ## Builds the Docker images
 	@$(DOCKER_COMP) build --pull --no-cache
+	@$(DOCKER_COMP) up --detach
+
+reload: ## Builds the Docker images
+	@$(DOCKER_COMP) build
 	@$(DOCKER_COMP) up --detach
 
 up: ## Start the docker hub in detached mode (no logs)

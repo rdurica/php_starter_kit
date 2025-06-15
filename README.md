@@ -50,21 +50,20 @@ mkcert -install
 
 After initial instalation you can use these commands:
 
-- `make rebuild:` Rebuild the Docker image
+- `make rebuild:` Rebuild the Docker image (--pull --no-cache)
+- `make reload:` Rebuild the Docker image(with cache).
 - `make up:` Start the containers in detached mode (docker-compose up -d)
 - `make down:` DStop and remove containers
 - `make logs:` Show logs from all containers
 - `make php:` Open a shell inside the PHP container
 - `make node:` Open a shell inside the Node.js container
-- `make manifest app_name=<$name>:` Generate example manifest for k8s. (for example make manifest app_name=app1).
-
-By default nginx pointing to `/src/public` folder.
+- `make manifest app_name=<$name>:` Generate example manifest for k8s. (for example `make manifest app_name=app1`).
 
 ## Additional configuration & setup
 
 ### <img src="https://laravel.com/img/logomark.min.svg" alt="Laravel" width="25" height="25" style="margin-right:10px;">Laravel
 
-in v**ite.config.js** add server section.
+in v**ite.config.js** add a server section.
 
 ```js
 import fs from 'fs';
@@ -86,9 +85,27 @@ export default defineConfig({
 });
 ```
 
-### <img src="https://avatars.githubusercontent.com/u/99965?s=200&v=4" alt="Laravel" width="25" height="25" style="margin-right:10px;">Nette
+If you’re starting a new Laravel project, simply enter the php container and run the official Laravel interactive installer:
+```shell
+make php
+laravel
+```
 
-If you're using Nette, you need to change the default document root from `public/` to `www/`.
+### <img src="https://symfony.com/logos/symfony_black_03.png" alt="Symfony" width="25" height="25" style="margin-right:10px;">Symfony
+If you’re starting a new Symfony project, simply enter the php container and run initialize new project in current directory:
+```shell
+make php
+symfony new . --webapp --no-git
+```
+
+### <img src="https://avatars.githubusercontent.com/u/99965?s=200&v=4" alt="Laravel" width="25" height="25" style="margin-right:10px;">Nette
+If you’re starting a new Nette project, simply enter the php container and run initialize new project:
+```shell
+make php
+nette
+```
+
+You need to change the default document root from `public/` to `www/`.
 Before building the containers, update the NGINX configuration in `build/dev/nginx/default.conf`:
 
 ```editorconfig
@@ -97,8 +114,8 @@ server {
 root        /app/src/www ;
 
 location ~ \.php$ {
-# /app/src/public -> /app/src/www
-fastcgi_param        SCRIPT_FILENAME /app/src/www$fastcgi_script_name ;
+    # /app/src/public -> /app/src/www
+    fastcgi_param        SCRIPT_FILENAME /app/src/www$fastcgi_script_name ;
 }
 ```
 
