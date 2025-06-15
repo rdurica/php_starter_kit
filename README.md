@@ -119,7 +119,10 @@ location ~ \.php$ {
 }
 ```
 
-If you already initialize container than after changes simply run `make reload`
+Note: If you have already initialized the containers, after making changes you can simply run:
+```shell
+make reload
+```
 
 ## Contributing
 
