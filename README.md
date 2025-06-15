@@ -6,24 +6,27 @@
 
 ![php8](https://github.com/user-attachments/assets/265bf808-0e8e-40a8-87fe-f473a708208d)
 
-"PHP Starter Kit" is a blank  preconfigured docker template for building PHP applications.
+"PHP Starter Kit" is a blank preconfigured docker template for building PHP applications.
 
 ## Overview
 
-The starter kit is built on the latest stable version of PHP and includes all the necessary extensions and libraries to
-get you started. This repository is intended to be a starting point for new projects and can be easily customized to fit
-the specific needs of your project. With this starter kit, developers can focus on writing code and not worry
-about the underlying setup. 
+This PHP Starter Kit provides a ready-to-use, out-of-the-box local development environment for modern PHP projects. It comes preconfigured with
+everything you need to start coding immediately, without wasting time on setup and configuration.
+The starter kit is built on the latest stable PHP version and includes all essential PHP extensions, a minimal and efficient Docker image, plus
+integrated support for popular PHP frameworks.
 
-Key aspects of the starter kit:
- - The Docker image is based on latest php-fpm-alpine with NGINX (using UNIX sockets).
- - Minimal image size while still providing all the necessary tools and extensions (~65 MB).
- - Dedicated network `apps` for local development.
- - SSL (HTTP/2) for localhost
- - Makefile for easy management of the Docker container.
- - Nodejs + npm for dev environment.
+**Key aspects of the starter kit:**
+- Docker image based on the latest php-fpm-alpine with NGINX using UNIX sockets for high performance.
+- Minimal production image size (~65 MB) while including all necessary tools and extensions.
+- Dedicated Docker network for local development.
+- Automatic SSL (HTTP/2) support with easy self-signed certificate generation.
+- Makefile included for simple container lifecycle management (init, rebuild, up, down, logs, etc.).
+- Node.js + npm included for frontend tooling and development (Vite, asset bundling).
+- Designed for maximum flexibility and ease use.
+- Enables hot reloading and smooth frontend-backend integration out of the box.
 
 ## Supported Frameworks
+
 This starter kit is ready to use out of the box with popular PHP frameworks such as Laravel, Symfony, and Nette.
 
 <p align="left">
@@ -33,16 +36,20 @@ This starter kit is ready to use out of the box with popular PHP frameworks such
 </p>
 
 ## HTTPS and SSL Certificates
+
 For local HTTPS development, it is required to have mkcert installed. This tool helps you generate trusted self-signed certificates.
+
 ```shell
 mkcert -install
 ```
 
 ## Getting Started
+
 1. Build the Docker image & generate ssl certificates: `make init`
 2. Access the application in your browser at https://localhost
 
 After initial instalation you can use these commands:
+
 - `make rebuild:` Rebuild the Docker image
 - `make up:` Start the containers in detached mode (docker-compose up -d)
 - `make down:` DStop and remove containers
@@ -52,6 +59,48 @@ After initial instalation you can use these commands:
 - `make manifest app_name=<$name>:` Generate example manifest for k8s. (for example make manifest app_name=app1).
 
 By default nginx pointing to `/src/public` folder.
+
+## Additional configuration & setup
+
+### <img src="https://laravel.com/img/logomark.min.svg" alt="Laravel" width="25" height="25" style="margin-right:10px;">Laravel
+
+in v**ite.config.js** add server section.
+
+```js
+import fs from 'fs';
+
+export default defineConfig({
+    server: {
+        https: {
+            key: fs.readFileSync('/etc/nginx/certs/tls.key'),
+            cert: fs.readFileSync('/etc/nginx/certs/tls.crt'),
+        },
+        host: '0.0.0.0',
+        port: 5173,
+        origin: 'https://localhost:5173',
+        cors: {
+            origin: 'https://localhost',
+            credentials: true,
+        }
+    }
+});
+```
+
+### <img src="https://avatars.githubusercontent.com/u/99965?s=200&v=4" alt="Laravel" width="25" height="25" style="margin-right:10px;">Nette
+
+If you're using Nette, you need to change the default document root from `public/` to `www/`.
+Before building the containers, update the NGINX configuration in `build/dev/nginx/default.conf`:
+
+```editorconfig
+server {
+# /app/src/public -> /app/src/www
+root        /app/src/www ;
+
+location ~ \.php$ {
+# /app/src/public -> /app/src/www
+fastcgi_param        SCRIPT_FILENAME /app/src/www$fastcgi_script_name ;
+}
+```
 
 ## Contributing
 
