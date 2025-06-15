@@ -119,6 +119,8 @@ location ~ \.php$ {
 }
 ```
 
+If you already initialize container than after changes simply run `make reload`
+
 ## Contributing
 
 If you would like to contribute to this project, please fork the repository and create a pull request. We welcome all
