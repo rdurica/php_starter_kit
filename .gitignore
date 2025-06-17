@@ -20,3 +20,6 @@ upload
 
 # K8s
 manifest.yaml
+
+# Laravel
+!src/.env.example
