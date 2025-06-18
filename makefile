@@ -39,6 +39,9 @@ php:
 node:
 	@$(NODE_CONT) bash
 
+node-sync:
+	sudo docker compose cp node:/app/src/node_modules ./src
+
 ## Manifest for k8s
 TEMPLATE = build/prod/manifest-template.yaml
 OUTPUT_DIR = .

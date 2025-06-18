@@ -57,6 +57,7 @@ After initial instalation you can use these commands:
 - `make logs:` Show logs from all containers
 - `make php:` Open a shell inside the PHP container
 - `make node:` Open a shell inside the Node.js container
+- `make node-sync:` Synchronize node_modules from container to a root system.
 - `make manifest app_name=<$name>:` Generate example manifest for k8s. (for example `make manifest app_name=app1`).
 
 ## Additional configuration & setup
