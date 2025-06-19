@@ -54,11 +54,12 @@ RUN chmod +x /usr/local/bin/start.sh && \
     chown -R robbyte:robbyte /var/log/nginx && \
     chown -R robbyte:robbyte /var/lib/nginx && \
     echo 'alias ll="ls -lah"' >> /home/robbyte/.bashrc && \
-    echo 'alias c="composer"' >> /home/robbyte/.bashrc && \
-    echo 'alias php="XDEBUG_SESSION=0 /usr/local/bin/php"' >> /home/robbyte/.bashrc && \
-    echo 'alias phpx="XDEBUG_SESSION=1 /usr/local/bin/php"' >> /home/robbyte/.bashrc && \
-    echo 'alias laravel="~/.composer/vendor/bin/laravel new new-app && mv new-app/* new-app/.* /app/src 2>/dev/null || true && rm -Rf new-app"' >> /home/robbyte/.bashrc && \
-    echo 'alias nette="composer create-project nette/web-project ."' >> /home/robbyte/.bashrc && \
+    echo 'alias c="XDEBUG_MODE=off composer"' >> /home/robbyte/.bashrc && \
+    echo 'alias cx="composer"' >> /home/robbyte/.bashrc && \
+    echo 'alias php="XDEBUG_MODE=off /usr/local/bin/php"' >> /home/robbyte/.bashrc && \
+    echo 'alias phpx="/usr/local/bin/php"' >> /home/robbyte/.bashrc && \
+    echo 'alias laravel="XDEBUG_MODE=off ~/.composer/vendor/bin/laravel new new-app && mv new-app/* new-app/.* /app/src 2>/dev/null || true && rm -Rf new-app"' >> /home/robbyte/.bashrc && \
+    echo 'alias nette="c create-project nette/web-project ."' >> /home/robbyte/.bashrc && \
     echo "PS1='\e[92m\u\e[0m@\e[94m\h\e[0m:\e[35m\w\e[0m# '" >> /home/robbyte/.bashrc
 
 WORKDIR /app/src
