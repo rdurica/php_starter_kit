@@ -1,3 +1,30 @@
+# Composer stage for dependency installation
+FROM php:8.4-fpm-alpine AS composer
+
+# Install basic packages needed for Composer
+RUN apk update && apk add --no-cache \
+    curl \
+    libzip-dev \
+    zlib-dev \
+    && rm -rf /var/cache/apk/*
+
+# Install PHP extensions needed for Composer
+RUN docker-php-ext-install zip && \
+    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+WORKDIR /app
+
+# Copy source directory (including potential composer files)
+COPY ./src/ ./
+
+# Install dependencies with production optimizations if composer.json exists
+RUN if [ -f composer.json ]; then \
+        composer install --no-dev --prefer-dist --optimize-autoloader --no-scripts --no-interaction; \
+    else \
+        mkdir -p vendor; \
+    fi
+
+# Production stage
 FROM php:8.4-fpm-alpine
 
 ENV TERM=xterm-256color
@@ -21,8 +48,7 @@ RUN apk update && apk add --no-cache \
     && rm -rf /var/cache/apk/*
 
 RUN docker-php-ext-configure gd --with-jpeg --with-webp && \
-    docker-php-ext-install gd pdo pdo_mysql mysqli pdo_pgsql pgsql zip intl opcache bcmath && \
-    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+    docker-php-ext-install gd pdo pdo_mysql mysqli pdo_pgsql pgsql zip intl opcache bcmath
 
 COPY build/prod/php/php.ini /usr/local/etc/php/php.ini
 COPY build/prod/php/php-fpm.conf /usr/local/etc/php-fpm.d/app.conf
@@ -42,6 +68,9 @@ RUN chmod +x /usr/local/bin/start.sh && \
 
 WORKDIR /app/src
 COPY ./src .
+
+# Copy vendor directory from composer stage
+COPY --from=composer /app/vendor ./vendor
 
 RUN chown -R robbyte:robbyte /app/src
 USER robbyte
