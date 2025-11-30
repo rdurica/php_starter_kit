@@ -19,57 +19,29 @@ jobs:
         name: Checkout
         uses: actions/checkout@v4
       -
-        name: Clear Docker Build Cache
-        run: docker builder prune --all --force
-      -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       -
-        name: Cache Composer packages
-        id: composer-cache
-        uses: actions/cache@v3
-        with:
-          path: vendor
-          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-php-
-      -
-        name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.4'
-      -
-        name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-dev
-        working-directory: ./src
-      -
-        name: Build Docker images
-        uses: docker/bake-action@v5
-        with:
-          pull: true
-          load: true
-          files: |
-            compose.prod.yaml
-          set: |
-            *.cache-from=type=gha,scope=${{github.ref}}
-            *.cache-from=type=gha,scope=refs/heads/main
-            *.cache-to=type=gha,scope=${{github.sha}},mode=max
-      -
         name: Login to DockerHub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       -
-        name: Push Docker Image
-        uses: docker/bake-action@v4
+        name: Build & push image
+        uses: docker/build-push-action@v6
         with:
+          context: .
+          file: build/prod/Dockerfile
           pull: true
           push: true
-          files: |
-            compose.prod.yaml
-          set: |
-            *.tags=${{ env.APP_NAME }}:${{ github.ref_name }}
-            *.tags=${{ env.APP_NAME }}:latest
-            *.cache-from=type=gha,scope=refs/heads/main
-            *.cache-to=type=gha,scope=${{ github.sha }},mode=max
+          tags: |
+            ${{ env.APP_NAME }}:${{ github.ref_name }}
+            ${{ env.APP_NAME }}:latest
+          cache-from: |
+            type=gha,scope=refs/heads/main
+            type=gha,scope=${{ github.ref }}
+            type=registry,ref=${{ env.APP_NAME }}:buildcache
+          cache-to: |
+            type=gha,scope=refs/heads/main,mode=max
+            type=registry,ref=${{ env.APP_NAME }}:buildcache,mode=max

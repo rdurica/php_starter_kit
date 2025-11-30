@@ -1,7 +1,8 @@
-FROM php:8.4-fpm-alpine
+FROM php:8.4-fpm-alpine AS base
 
 ENV TERM=xterm-256color
 ENV TZ=Europe/Prague
+ENV COMPOSER_ALLOW_SUPERUSER=1
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN adduser -D -u 1000 -s /bin/sh robbyte
 
@@ -12,37 +13,40 @@ RUN apk update && apk add --no-cache \
     bash \
     curl \
     git \
-    make \
     linux-headers \
     libpq-dev \
     libzip-dev \
     zlib-dev \
     libxml2-dev \
     icu-dev \
-    libjpeg-turbo-dev \
-    libpng-dev \
-    libwebp-dev \
     && rm -rf /var/cache/apk/*
 
-RUN apk add --no-cache $PHPIZE_DEPS \
-    && pecl install xdebug \
-    && docker-php-ext-enable xdebug \
-    && export PHP_IDE_CONFIG="serverName=localhost"
-
-ADD build/dev/certs/tls.crt /usr/local/share/ca-certificates/tls.crt
-RUN update-ca-certificates
-
-RUN docker-php-ext-configure gd --with-jpeg --with-webp && \
-    docker-php-ext-install gd pdo pdo_mysql mysqli pdo_pgsql pgsql zip intl opcache bcmath && \
+RUN docker-php-ext-install pdo pdo_mysql mysqli pdo_pgsql pgsql zip intl opcache bcmath && \
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 RUN curl -sS https://get.symfony.com/cli/installer | bash -s -- --install-dir=/usr/local/bin \
     && mv /usr/local/bin/symfony* /usr/local/bin/symfony \
     && chmod +x /usr/local/bin/symfony
 
+RUN apk add --no-cache $PHPIZE_DEPS \
+    && pecl install xdebug \
+    && docker-php-ext-enable xdebug \
+    && export PHP_IDE_CONFIG="serverName=localhost"
+
+WORKDIR /app/src
+
+FROM base AS runtime
+
+ENV TERM=xterm-256color
+ENV TZ=Europe/Prague
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
+ADD build/dev/certs/tls.crt /usr/local/share/ca-certificates/tls.crt
+RUN update-ca-certificates
+
+COPY build/dev/php/php-fpm.conf /usr/local/etc/php-fpm.d/app.conf
 COPY build/dev/php/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 COPY build/dev/php/php.ini /usr/local/etc/php/php.ini
-COPY build/dev/php/php-fpm.conf /usr/local/etc/php-fpm.d/app.conf
 COPY build/dev/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY build/dev/nginx/default.conf /etc/nginx/http.d/default.conf
 COPY build/dev/supervisord/supervisord.conf /etc/supervisor/conf.d/supervisord.conf

@@ -16,12 +16,13 @@ init:
 
 ## Docker
 rebuild: ## Builds the Docker images
+	@$(DOCKER_COMP) build php-fpm
 	@$(DOCKER_COMP) build --pull --no-cache
 	@$(DOCKER_COMP) up --detach
 
 reload: ## Builds the Docker images
 	@$(DOCKER_COMP) build php-fpm
-	@$(DOCKER_COMP) build --pull --no-cache node
+	@$(DOCKER_COMP) build
 	@$(DOCKER_COMP) up --detach
 
 up: ## Start the docker hub in detached mode (no logs)
@@ -41,14 +42,3 @@ node:
 
 node-sync:
 	sudo docker compose cp node:/app/src/node_modules ./src
-
-## Manifest for k8s
-TEMPLATE = build/prod/manifest-template.yaml
-OUTPUT_DIR = .
-.PHONY: manifest clean
-
-manifest:
-	@echo "Generating manifest for $(app_name) ..."
-	cp $(TEMPLATE) $(OUTPUT_DIR)/manifest.yaml && \
-	sed -i "s/{{APP_NAME}}/$(app_name)/g" $(OUTPUT_DIR)/manifest.yaml && \
-	sed -i "s|{{APP_SECRET}}|$(shell openssl rand -base64 32)|g" $(OUTPUT_DIR)/manifest.yaml
