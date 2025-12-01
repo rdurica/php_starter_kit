@@ -1,9 +1,0 @@
-services:
-  php-fpm:
-    build:
-      context: .
-      dockerfile: build/prod/Dockerfile
-    volumes:
-      - ./src:/app/src
-    expose:
-      - 443
