@@ -1,4 +1,4 @@
-FROM php:8.4-fpm-alpine AS base
+FROM php:8.5-fpm-alpine AS base
 
 ENV TERM=xterm-256color
 ENV TZ=Europe/Prague
@@ -17,7 +17,7 @@ RUN apk update && apk add --no-cache \
     icu-dev \
     && rm -rf /var/cache/apk/*
 
-RUN docker-php-ext-install pdo pdo_mysql mysqli pdo_pgsql pgsql zip intl opcache bcmath && \
+RUN docker-php-ext-install pdo pdo_mysql mysqli pdo_pgsql pgsql zip intl bcmath && \
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 WORKDIR /app/src

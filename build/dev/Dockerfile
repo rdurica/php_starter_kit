@@ -1,4 +1,6 @@
-FROM php:8.4-fpm-alpine AS base
+FROM ghcr.io/php/pie:bin AS pie
+
+FROM php:8.5-fpm-alpine AS base
 
 ENV TERM=xterm-256color
 ENV TZ=Europe/Prague
@@ -21,16 +23,18 @@ RUN apk update && apk add --no-cache \
     icu-dev \
     && rm -rf /var/cache/apk/*
 
-RUN docker-php-ext-install pdo pdo_mysql mysqli pdo_pgsql pgsql zip intl opcache bcmath && \
+RUN docker-php-ext-install pdo pdo_mysql mysqli pdo_pgsql pgsql zip intl bcmath && \
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 RUN curl -sS https://get.symfony.com/cli/installer | bash -s -- --install-dir=/usr/local/bin \
     && mv /usr/local/bin/symfony* /usr/local/bin/symfony \
     && chmod +x /usr/local/bin/symfony
 
+
+COPY --from=pie /pie /usr/local/bin/pie
 RUN apk add --no-cache $PHPIZE_DEPS \
-    && pecl install xdebug \
-    && docker-php-ext-enable xdebug \
+    && chmod +x /usr/local/bin/pie \
+    && pie install xdebug/xdebug:3.5.0alpha3 \
     && export PHP_IDE_CONFIG="serverName=localhost"
 
 WORKDIR /app/src

@@ -1,4 +1,4 @@
-FROM php:8.4-fpm-alpine
+FROM php:8.5-fpm-alpine
 
 ENV TERM=xterm-256color
 ENV TZ=Europe/Prague
@@ -22,7 +22,7 @@ RUN apk update && apk add --no-cache \
     && rm -rf /var/cache/apk/*
 
 RUN docker-php-ext-configure gd --with-jpeg --with-webp && \
-    docker-php-ext-install gd pdo pdo_mysql mysqli pdo_pgsql pgsql zip intl opcache bcmath && \
+    docker-php-ext-install gd pdo pdo_mysql mysqli pdo_pgsql pgsql zip intl bcmath && \
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 RUN curl -sS https://get.symfony.com/cli/installer | bash -s -- --install-dir=/usr/local/bin \
