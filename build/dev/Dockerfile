@@ -23,7 +23,7 @@ RUN apk update && apk add --no-cache \
     icu-dev \
     && rm -rf /var/cache/apk/*
 
-RUN docker-php-ext-install pdo pdo_mysql mysqli pdo_pgsql pgsql zip intl bcmath && \
+RUN docker-php-ext-install sockets pdo pdo_mysql mysqli pdo_pgsql pgsql zip intl bcmath && \
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 RUN curl -sS https://get.symfony.com/cli/installer | bash -s -- --install-dir=/usr/local/bin \
@@ -34,7 +34,7 @@ RUN curl -sS https://get.symfony.com/cli/installer | bash -s -- --install-dir=/u
 COPY --from=pie /pie /usr/local/bin/pie
 RUN apk add --no-cache $PHPIZE_DEPS \
     && chmod +x /usr/local/bin/pie \
-    && pie install xdebug/xdebug:3.5.0alpha3 \
+    && pie install xdebug/xdebug:3.5.0 \
     && export PHP_IDE_CONFIG="serverName=localhost"
 
 WORKDIR /app/src
