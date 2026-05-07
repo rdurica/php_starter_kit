@@ -148,6 +148,48 @@ function handleInstall() {
         }
     }
     
+    // Nette fix: www/ → public/
+    if (is_dir($projectDir . '/www')) {
+        sendEvent('output', "Detected Nette www/ structure. Moving to public/...");
+        
+        if (!is_dir($projectDir . '/public')) {
+            mkdir($projectDir . '/public', 0755, true);
+        }
+        
+        $wwwIterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($projectDir . '/www', RecursiveDirectoryIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::SELF_FIRST
+        );
+        
+        foreach ($wwwIterator as $item) {
+            $relPath = substr($item->getPathname(), strlen($projectDir . '/www/'));
+            $destPath = $projectDir . '/public/' . $relPath;
+            
+            if ($item->isDir()) {
+                if (!is_dir($destPath)) {
+                    mkdir($destPath, 0755, true);
+                }
+            } else {
+                rename($item->getPathname(), $destPath);
+            }
+        }
+        
+        $rmIterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($projectDir . '/www', RecursiveDirectoryIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::CHILD_FIRST
+        );
+        foreach ($rmIterator as $file) {
+            if ($file->isDir()) {
+                rmdir($file->getPathname());
+            } else {
+                unlink($file->getPathname());
+            }
+        }
+        rmdir($projectDir . '/www');
+        
+        sendEvent('output', "Nette www/ → public/ move completed.");
+    }
+    
     sendEvent('progress', '98');
     sendEvent('output', "Files moved successfully.");
     
