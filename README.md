@@ -1,134 +1,144 @@
 # PHP Starter Kit
 
+Modern Docker-based starter kit for PHP applications built on **FrankenPHP** — a Caddy-powered PHP server with HTTP/2, HTTP/3, and automatic HTTPS.
+
 [![PHP](https://img.shields.io/badge/PHP-8.5-blue.svg)](http://php.net)
-[![Docker](https://img.shields.io/badge/Docker-powered-blue.svg)](https://www.docker.com/)
-[![composer](https://img.shields.io/badge/composer-latest-green.svg)](https://getcomposer.org/)
+[![FrankenPHP](https://img.shields.io/badge/FrankenPHP-1.x-blue.svg)](https://frankenphp.dev/)
+[![Docker](https://img.shields.io/badge/Docker-ready-blue.svg)](https://www.docker.com/)
+[![Tests](https://github.com/rdurica/php_starter_kit/actions/workflows/ci.yaml/badge.svg)](https://github.com/rdurica/php_starter_kit/actions)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-![php8](https://github.com/user-attachments/assets/265bf808-0e8e-40a8-87fe-f473a708208d)
+![Banner](docs/img/banner.png)
 
-"PHP Starter Kit" is a blank preconfigured docker template for building PHP applications.
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Requirements](#requirements)
+- [Available Commands](#available-commands)
+- [Framework Installation](#framework-installation)
+- [Environments](#environments)
+- [Production](#production)
+- [CI/CD](#cicd)
+- [Security](#security)
+- [License](#license)
+
+## Quick Start
+
+```bash
+git clone https://github.com/rdurica/php_starter_kit.git && cd php_starter_kit && make init
+```
+
+Then open [https://localhost](https://localhost) (auto-generated certificate).
+
+---
+
 
 ## Overview
 
-This PHP Starter Kit provides a ready-to-use, out-of-the-box local development environment for modern PHP projects. It comes preconfigured with
-everything you need to start coding immediately, without wasting time on setup and configuration.
-The starter kit is built on the latest stable PHP version and includes all essential PHP extensions, a minimal and efficient Docker image, plus
-integrated support for popular PHP frameworks.
+This starter kit provides a ready-to-use, out-of-the-box local development environment for modern PHP projects. It comes preconfigured with everything you need to start coding immediately, without wasting time on setup and configuration.
 
-**Key aspects of the starter kit:**
-- Docker image based on the latest php-fpm-alpine with NGINX using UNIX sockets for high performance.
-- Minimal production image size (~65 MB) while including all necessary tools and extensions.
-- Dedicated Docker network for local development.
-- Automatic SSL (HTTP/2) support with easy self-signed certificate generation.
-- Makefile included for simple container lifecycle management (init, rebuild, up, down, logs, etc.).
-- Node.js + npm included for frontend tooling and development (Vite, asset bundling).
-- Designed for maximum flexibility and ease use.
-- Enables hot reloading and smooth frontend-backend integration out of the box.
+**Key aspects:**
 
-## Supported Frameworks
+- **FrankenPHP** — Modern PHP application server with HTTP/2, HTTP/3, and automatic HTTPS
+- **Secure by default** — Non-root user, security headers, hardened sessions, no `expose_php`
+- **Multi-environment** — Dev, CI, and Demo configurations
+- **Multi-stage production build** — Minimal attack surface, optimized layers
+- **CI/CD ready** — GitHub Actions with code quality, tests, security scanning
+- **DevContainer support** — VSCode remote containers out of the box
+- **Framework agnostic** — Ready for Laravel, Symfony, and Nette
+- **Frontend ready** — Node.js and Vite integrated in the dev container
+- **Quality tooling** — PHPStan, PHP CS Fixer, ESLint, Prettier
 
-This starter kit is ready to use out of the box with popular PHP frameworks such as Laravel, Symfony, and Nette.
+## Requirements
 
-<p align="left">
-  <img src="https://laravel.com/img/logomark.min.svg" alt="Laravel" width="40" height="40" style="margin-right:10px;">
-  <img src="https://symfony.com/logos/symfony_black_03.png" alt="Symfony" width="40" height="40" style="margin-right:10px;">
-  <img src="https://avatars.githubusercontent.com/u/99965?s=200&v=4" alt="Nette" width="40" height="40">
-</p>
+- [Docker](https://docs.docker.com/get-docker/) & Docker Compose
+- [Make](https://www.gnu.org/software/make/) (optional but recommended)
+- `sudo` access for trusting local HTTPS certificates
 
-## HTTPS and SSL Certificates
+## Available Commands
 
-For local HTTPS development, it is required to have mkcert installed. This tool helps you generate trusted self-signed certificates.
+| Command | Description |
+|---------|-------------|
+| `make init` | First-time setup: network, images, containers |
+| `make up` | Start containers in detached mode |
+| `make down` | Stop and remove containers |
+| `make logs` | Show live logs from all containers |
+| `make php` | Open shell inside the FrankenPHP container |
+| `make rebuild` | Force rebuild images (--pull --no-cache) |
+| `make reload` | Rebuild images with cache |
+| `make setup-githooks` | Enable pre-commit hooks |
+| `make trust-cert` | Trust Caddy's local CA certificate |
 
-```shell
-mkcert -install
-```
+## Framework Installation
 
-## Getting Started
+Enter the PHP container and run the installer for your framework:
 
-1. Build the Docker image & generate ssl certificates: `make init`
-2. Access the application in your browser at https://localhost
+| Framework | Command | Web Root |
+|-----------|---------|----------|
+| **Laravel** | `laravel` | `src/public` |
+| **Symfony** | `symfony new . --webapp --no-git` | `src/public` |
+| **Nette** | `nette` | `src/www` |
 
-After initial instalation you can use these commands:
-
-- `make rebuild:` Rebuild the Docker image (--pull --no-cache)
-- `make reload:` Rebuild the Docker image(with cache).
-- `make up:` Start the containers in detached mode (docker-compose up -d)
-- `make down:` DStop and remove containers
-- `make logs:` Show logs from all containers
-- `make php:` Open a shell inside the PHP container
-- `make node:` Open a shell inside the Node.js container
-- `make node-sync:` Synchronize node_modules from container to a root system.
-- `make manifest app_name=<$name>:` Generate example manifest for k8s. (for example `make manifest app_name=app1`).
-
-## Additional configuration & setup
-
-### <img src="https://laravel.com/img/logomark.min.svg" alt="Laravel" width="25" height="25" style="margin-right:10px;">Laravel
-
-in v**ite.config.js** add a server section.
-
-```js
-import fs from 'fs';
-
-export default defineConfig({
-    server: {
-        https: {
-            key: fs.readFileSync('/etc/nginx/certs/tls.key'),
-            cert: fs.readFileSync('/etc/nginx/certs/tls.crt'),
-        },
-        host: '0.0.0.0',
-        port: 5173,
-        origin: 'https://localhost:5173',
-        cors: {
-            origin: 'https://localhost',
-            credentials: true,
-        }
-    }
-});
-```
-
-If you’re starting a new Laravel project, simply enter the php container and run the official Laravel interactive installer:
-```shell
+```bash
 make php
-laravel
+# Then run your framework command from the table above
 ```
 
-### <img src="https://symfony.com/logos/symfony_black_03.png" alt="Symfony" width="25" height="25" style="margin-right:10px;">Symfony
-If you’re starting a new Symfony project, simply enter the php container and run initialize new project in current directory:
-```shell
-make php
-symfony new . --webapp --no-git
+> **Note:** For Nette, update `build/dev/Caddyfile` and change `root` to `/app/src/www`.
+
+## Environments
+
+### Development (`compose.yaml`)
+- FrankenPHP with xdebug, Node.js, Git, Symfony CLI, Laravel installer
+- Caddy auto HTTPS on https://localhost
+- Vite dev server running in the background
+- Volume mount for live code editing
+
+### CI (`compose.ci.yaml`)
+- Lightweight FrankenPHP image (no xdebug, no Node)
+- SQLite in-memory for fast tests
+- Ideal for GitHub Actions
+
+### Demo (`compose.demo.yaml`)
+- Self-contained stack with PostgreSQL and Redis
+- Uses prebuilt GHCR image
+- Port 8080 on host
+
+## Production
+
+Build the production image:
+
+```bash
+docker build -f build/prod/Dockerfile -t myapp:latest .
 ```
 
-### <img src="https://avatars.githubusercontent.com/u/99965?s=200&v=4" alt="Laravel" width="25" height="25" style="margin-right:10px;">Nette
-If you’re starting a new Nette project, simply enter the php container and run initialize new project:
-```shell
-make php
-nette
+Run with the demo stack:
+
+```bash
+docker compose -f compose.demo.yaml up
 ```
 
-You need to change the default document root from `public/` to `www/`.
-Before building the containers, update the NGINX configuration in `build/dev/nginx/default.conf`:
+## CI/CD
 
-```editorconfig
-server {
-# /app/src/public -> /app/src/www
-root        /app/src/www ;
+Three GitHub Actions workflows are included:
 
-location ~ \.php$ {
-    # /app/src/public -> /app/src/www
-    fastcgi_param        SCRIPT_FILENAME /app/src/www$fastcgi_script_name ;
-}
-```
+| Workflow | Description |
+|----------|-------------|
+| `code-quality.yml` | PHPStan, PHP CS Fixer, Composer audit, Frontend lint |
+| `ci.yml` | Framework auto-detection, PHPUnit tests, Docker lint |
+| `build.yml` | Multi-stage prod image build, GHCR push, Trivy security scan |
 
-Note: If you have already initialized the containers, after making changes you can simply run:
-```shell
-make reload
-```
+## Security
 
-## Contributing
-
-If you would like to contribute to this project, please fork the repository and create a pull request. We welcome all
-contributions, including bug fixes, new features, and documentation improvements.
+- Non-root user (`robbyte`, UID 1000) in all containers
+- `COMPOSER_ALLOW_SUPERUSER` removed
+- `expose_php = Off` in production
+- Security headers: X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy
+- Session hardening: strict mode, httponly, samesite
+- OPcache and JIT enabled in production
+- Healthcheck on `/up` endpoint
+- Trivy vulnerability scanning in CI
 
 ## License
 

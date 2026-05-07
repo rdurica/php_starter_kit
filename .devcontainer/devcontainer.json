@@ -1,0 +1,30 @@
+{
+    "name": "PHP Starter Kit",
+    "dockerComposeFile": "../compose.yaml",
+    "service": "frankenphp",
+    "workspaceFolder": "/app",
+    "initializeCommand": "make up",
+    "overrideCommand": false,
+    "updateRemoteUserUID": true,
+    "shutdownAction": "stopCompose",
+    "remoteUser": "robbyte",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "bmewburn.vscode-intelephense-client",
+                "xdebug.php-debug",
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
+                "bradlc.vscode-tailwindcss",
+                "ms-vscode.vscode-typescript-next",
+                "christian-kohler.path-intellisense"
+            ],
+            "settings": {
+                "php.validate.executablePath": "/usr/local/bin/php",
+                "php.debug.idekey": "PHPSTORM",
+                "remote.restoreEditors": false,
+                "workbench.startupEditor": "none"
+            }
+        }
+    }
+}

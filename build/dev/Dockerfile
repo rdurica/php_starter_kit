@@ -1,81 +1,50 @@
-FROM ghcr.io/php/pie:bin AS pie
-
-FROM php:8.5-fpm-alpine AS base
+FROM dunglas/frankenphp:1-php8.5-alpine
 
 ENV TERM=xterm-256color
 ENV TZ=Europe/Prague
-ENV COMPOSER_ALLOW_SUPERUSER=1
+
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-RUN adduser -D -u 1000 -s /bin/sh robbyte
 
-RUN apk update && apk add --no-cache \
-    supervisor \
-    nginx \
-    npm \
-    bash \
-    curl \
-    git \
-    linux-headers \
-    libpq-dev \
-    libzip-dev \
-    zlib-dev \
-    libxml2-dev \
-    icu-dev \
-    && rm -rf /var/cache/apk/*
+# System deps
+RUN apk add --no-cache \
+    nodejs npm bash curl git openssh-client \
+    linux-headers libpq-dev libzip-dev zlib-dev \
+    libxml2-dev icu-dev freetype-dev \
+    libjpeg-turbo-dev libpng-dev libwebp-dev
 
-RUN docker-php-ext-install sockets pdo pdo_mysql mysqli pdo_pgsql pgsql zip intl bcmath && \
-    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# PHP extensions (including xdebug for dev)
+RUN install-php-extensions \
+    pdo pdo_mysql mysqli pdo_pgsql pgsql \
+    zip intl bcmath gd sockets xdebug
 
+# Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# Symfony CLI
 RUN curl -sS https://get.symfony.com/cli/installer | bash -s -- --install-dir=/usr/local/bin \
-    && mv /usr/local/bin/symfony* /usr/local/bin/symfony \
+    && mv /usr/local/bin/symfony* /usr/local/bin/symfony 2>/dev/null || true \
     && chmod +x /usr/local/bin/symfony
 
-
-COPY --from=pie /pie /usr/local/bin/pie
-RUN apk add --no-cache $PHPIZE_DEPS \
-    && chmod +x /usr/local/bin/pie \
-    && pie install xdebug/xdebug:3.5.0 \
-    && export PHP_IDE_CONFIG="serverName=localhost"
-
-WORKDIR /app/src
-
-FROM base AS runtime
-
-ENV TERM=xterm-256color
-ENV TZ=Europe/Prague
-ENV COMPOSER_ALLOW_SUPERUSER=1
-
-ADD build/dev/certs/tls.crt /usr/local/share/ca-certificates/tls.crt
-RUN update-ca-certificates
-
-COPY build/dev/php/php-fpm.conf /usr/local/etc/php-fpm.d/app.conf
-COPY build/dev/php/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
-COPY build/dev/php/php.ini /usr/local/etc/php/php.ini
-COPY build/dev/nginx/nginx.conf /etc/nginx/nginx.conf
-COPY build/dev/nginx/default.conf /etc/nginx/http.d/default.conf
-COPY build/dev/supervisord/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY build/dev/supervisord/start.sh /usr/local/bin/start.sh
-
-RUN chmod +x /usr/local/bin/start.sh && \
-    addgroup robbyte nginx && \
-    mkdir -p /var/lib/nginx && \
-    chown -R robbyte:robbyte /var/log/nginx && \
-    chown -R robbyte:robbyte /var/lib/nginx && \
-    echo 'alias ll="ls -lah"' >> /home/robbyte/.bashrc && \
-    echo 'alias c="XDEBUG_MODE=off composer"' >> /home/robbyte/.bashrc && \
-    echo 'alias cx="composer"' >> /home/robbyte/.bashrc && \
-    echo 'alias php="XDEBUG_MODE=off /usr/local/bin/php"' >> /home/robbyte/.bashrc && \
-    echo 'alias phpx="/usr/local/bin/php"' >> /home/robbyte/.bashrc && \
-    echo 'alias laravel="XDEBUG_MODE=off ~/.composer/vendor/bin/laravel new new-app && mv new-app/* new-app/.* /app/src 2>/dev/null || true && rm -Rf new-app"' >> /home/robbyte/.bashrc && \
-    echo 'alias nette="c create-project nette/web-project ."' >> /home/robbyte/.bashrc && \
-    echo "PS1='\e[92m\u\e[0m@\e[94m\h\e[0m:\e[35m\w\e[0m# '" >> /home/robbyte/.bashrc
-
-WORKDIR /app/src
-COPY ./src .
-
-RUN chown -R robbyte:robbyte /app/src
-USER robbyte
-
+# Laravel installer
 RUN composer global require laravel/installer
 
-CMD ["/usr/local/bin/start.sh", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+WORKDIR /app/src
+
+RUN adduser -D -u 1000 -s /bin/sh robbyte \
+    && chown -R robbyte:robbyte /data /config
+
+# Aliasy pro robbyte
+RUN echo 'alias ll="ls -lah"' >> /home/robbyte/.bashrc && \
+    echo 'alias c="composer"' >> /home/robbyte/.bashrc && \
+    echo 'alias art="php artisan"' >> /home/robbyte/.bashrc && \
+    echo 'alias sf="php bin/console"' >> /home/robbyte/.bashrc && \
+    echo 'alias laravel="composer create-project laravel/laravel ."' >> /home/robbyte/.bashrc && \
+    echo 'alias nette="composer create-project nette/web-project ."' >> /home/robbyte/.bashrc && \
+    echo "PS1='\e[92m\u\e[0m@\e[94m\h\e[0m:\e[35m\w\e[0m# '" >> /home/robbyte/.bashrc
+
+USER robbyte
+
+EXPOSE 80 443
+COPY --chown=robbyte:robbyte build/dev/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+CMD ["/usr/local/bin/entrypoint.sh"]

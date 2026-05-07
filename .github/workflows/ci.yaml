@@ -1,0 +1,91 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request: ~
+  workflow_dispatch: ~
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  config:
+    name: Compose Config
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate dev Compose config
+        run: docker compose config
+
+      - name: Validate CI Compose config
+        run: docker compose -f compose.ci.yaml config
+
+      - name: Validate demo Compose config
+        run: docker compose -f compose.demo.yaml config
+
+  tests:
+    name: Framework Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build CI image
+        run: docker compose -f compose.ci.yaml build --pull
+
+      - name: Run framework tests in Docker
+        run: |
+          docker compose -f compose.ci.yaml run --rm --user root app sh -lc '
+            set -e
+
+            if [ ! -f composer.json ]; then
+              echo "No composer.json found; skipping PHP framework tests."
+              exit 0
+            fi
+
+            composer install --no-interaction --prefer-dist
+
+            if [ -f artisan ]; then
+              [ -f .env ] || cp .env.example .env
+              php artisan key:generate
+              php artisan test
+            elif [ -f bin/console ]; then
+              php bin/console doctrine:database:create --if-not-exists --env=test
+              php bin/console doctrine:schema:update --force --env=test
+              vendor/bin/phpunit
+            elif [ -x vendor/bin/tester ]; then
+              vendor/bin/tester tests -s
+            elif [ -x vendor/bin/phpunit ]; then
+              vendor/bin/phpunit
+            else
+              echo "No supported PHP test runner found; skipping."
+            fi
+          '
+
+  lint:
+    name: Docker Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Lint Dev Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: build/dev/Dockerfile
+          ignore: "DL3018,DL4006,SC2028"
+      - name: Lint Prod Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: build/prod/Dockerfile
+          ignore: "DL3018,DL4006,SC2028"
+      - name: Lint CI Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: build/ci/Dockerfile
+          ignore: "DL3018,DL4006,SC2028"

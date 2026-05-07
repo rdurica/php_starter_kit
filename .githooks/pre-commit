@@ -1,0 +1,23 @@
+#!/bin/sh
+export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
+
+# 1. Inside Dev Container or with local Node
+if [ -n "$REMOTE_CONTAINERS" ] || [ -f /.dockerenv ] || command -v npx >/dev/null 2>&1; then
+    git config --global --add safe.directory /app 2>/dev/null || true
+    npx lint-staged
+    exit $?
+fi
+
+# 2. With Docker on host
+if command -v docker >/dev/null 2>&1; then
+    docker compose run --rm \
+        -v "./.git:/app/.git" \
+        -w /app/src \
+        -e GIT_DISCOVERY_ACROSS_FILESYSTEM=1 \
+        frankenphp sh -c "git config --global --add safe.directory /app && npx lint-staged"
+    exit $?
+fi
+
+# 3. Nothing available
+echo "Warning: No formatting tool found, skipping pre-commit"
+exit 0

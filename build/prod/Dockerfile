@@ -1,62 +1,54 @@
-FROM php:8.5-fpm-alpine AS base
+FROM dunglas/frankenphp:1-php8.5-alpine AS base
 
 ENV TERM=xterm-256color
 ENV TZ=Europe/Prague
-ENV COMPOSER_ALLOW_SUPERUSER=1
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-RUN apk update && apk add --no-cache \
-    supervisor \
-    nginx \
+RUN apk add --no-cache \
     bash \
     curl \
+    netcat-openbsd \
     libpq-dev \
     libzip-dev \
     zlib-dev \
     libxml2-dev \
     icu-dev \
-    && rm -rf /var/cache/apk/*
+    linux-headers \
+    libjpeg-turbo-dev \
+    libpng-dev \
+    libwebp-dev
 
-RUN docker-php-ext-install sockets pdo pdo_mysql mysqli pdo_pgsql pgsql zip intl bcmath && \
-    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN install-php-extensions \
+    pdo pdo_mysql mysqli pdo_pgsql pgsql \
+    zip intl bcmath gd sockets
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app/src
 
 FROM base AS vendor
 
-ENV APP_ENV=prod
-ENV APP_DEBUG=0
-
-COPY src/composer.json src/composer.lock ./
-RUN composer install --no-dev --prefer-dist --no-progress --no-scripts --no-interaction --no-autoloader
-
 COPY src .
-RUN composer dump-autoload --optimize --classmap-authoritative --no-dev --no-scripts
+RUN if [ -f composer.json ]; then \
+        composer install --no-dev --prefer-dist --no-progress --no-scripts --no-interaction --no-autoloader; \
+        composer dump-autoload --optimize --classmap-authoritative --no-dev --no-scripts; \
+    else \
+        echo "No composer.json found; skipping Composer install"; \
+    fi
 
 FROM base AS runtime
 
-ENV APP_ENV=prod
-ENV APP_DEBUG=0
+RUN adduser -D -u 1000 -s /bin/sh robbyte \
+    && chown -R robbyte:robbyte /data /config
 
-RUN adduser -D -u 1000 -s /bin/sh robbyte
+COPY build/prod/Caddyfile /etc/caddy/Caddyfile
+COPY build/prod/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
-COPY build/prod/php/php.ini /usr/local/etc/php/php.ini
-COPY build/prod/php/php-fpm.conf /usr/local/etc/php-fpm.d/app.conf
-COPY build/prod/nginx/nginx.conf /etc/nginx/nginx.conf
-COPY build/prod/nginx/default.conf /etc/nginx/http.d/default.conf
-COPY build/prod/supervisord/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY build/prod/supervisord/start.sh /usr/local/bin/start.sh
+# Enable PHP production settings
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+COPY build/prod/opcache-jit.ini "$PHP_INI_DIR/conf.d/opcache-jit.ini"
 
-RUN chmod +x /usr/local/bin/start.sh && \
-    addgroup robbyte nginx && \
-    mkdir -p /var/lib/nginx && \
-    mkdir -p var/cache var/log && \
-    chown -R robbyte:robbyte /app && \
-    chown -R robbyte:robbyte /var/log/nginx && \
-    chown -R robbyte:robbyte /var/lib/nginx && \
-    echo 'alias ll="ls -lah"' >> /home/robbyte/.bashrc && \
-    echo 'alias c="composer"' >> /home/robbyte/.bashrc && \
-    echo "PS1='\e[92m\u\e[0m@\e[94m\h\e[0m:\e[35m\w\e[0m# '" >> /home/robbyte/.bashrc
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 WORKDIR /app/src
 COPY --from=vendor /app/src /app/src
@@ -66,4 +58,7 @@ USER robbyte
 
 EXPOSE 80
 
-CMD ["/usr/local/bin/start.sh", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost/up || exit 1
+
+CMD ["/usr/local/bin/docker-entrypoint.sh"]

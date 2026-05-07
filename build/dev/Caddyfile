@@ -1,0 +1,25 @@
+{
+    frankenphp
+}
+
+localhost {
+    root /app/src/public
+    encode zstd br gzip
+    
+    @vite {
+        path /build/*
+        path /@vite/*
+        path /@react-refresh
+        path /resources/*
+        path /node_modules/*
+    }
+    
+    @hmr {
+        header Upgrade websocket
+    }
+    
+    reverse_proxy @vite localhost:5173
+    reverse_proxy @hmr localhost:5173
+    
+    php_server
+}

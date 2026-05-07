@@ -1,0 +1,104 @@
+name: Code Quality
+
+on:
+    push:
+        branches: [main, develop]
+    pull_request:
+        branches: [main, develop]
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    config:
+        name: Compose Config
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Validate dev Compose config
+              run: docker compose config
+
+            - name: Validate CI Compose config
+              run: docker compose -f compose.ci.yaml config
+
+            - name: Validate demo Compose config
+              run: docker compose -f compose.demo.yaml config
+
+    frontend:
+        name: Frontend Quality
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Build CI image
+              run: docker compose -f compose.ci.yaml build --pull
+
+            - name: Run frontend checks in Docker
+              run: |
+                  docker compose -f compose.ci.yaml run --rm --user root app sh -lc '
+                    set -e
+
+                    if [ ! -f package.json ]; then
+                      echo "No package.json found; skipping frontend checks."
+                      exit 0
+                    fi
+
+                    npm ci
+
+                    run_npm_script() {
+                      if node -e "const scripts = require(\"./package.json\").scripts || {}; process.exit(scripts[process.argv[1]] ? 0 : 1)" "$1"; then
+                        npm run "$1"
+                      else
+                        echo "No npm script $1; skipping."
+                      fi
+                    }
+
+                    run_npm_script typecheck
+                    run_npm_script lint
+                    run_npm_script format:check
+                  '
+
+    backend:
+        name: Backend Quality
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Build CI image
+              run: docker compose -f compose.ci.yaml build --pull
+
+            - name: Run backend checks in Docker
+              run: |
+                  docker compose -f compose.ci.yaml run --rm --user root app sh -lc '
+                    set -e
+
+                    if [ ! -f composer.json ]; then
+                      echo "No composer.json found; skipping backend checks."
+                      exit 0
+                    fi
+
+                    composer validate --strict
+                    composer install --no-interaction --prefer-dist
+
+                    if [ -f phpstan.neon ] || [ -f phpstan.dist.neon ]; then
+                      vendor/bin/phpstan analyse --no-progress --memory-limit=1G
+                    else
+                      echo "No PHPStan config found; skipping static analysis."
+                    fi
+
+                    if [ -f .php-cs-fixer.dist.php ] || [ -f .php-cs-fixer.php ]; then
+                      vendor/bin/php-cs-fixer fix --dry-run --diff
+                    else
+                      echo "No PHP CS Fixer config found; skipping code style."
+                    fi
+
+                    composer audit
+                  '
