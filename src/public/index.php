@@ -14,9 +14,6 @@ switch ($action) {
     case 'delete-setup':
         handleDeleteSetup();
         break;
-    case 'restart-frankenphp':
-        handleRestartFrankenphp();
-        break;
     default:
         showUI();
         break;
@@ -193,17 +190,6 @@ function handleInstall() {
     sendEvent('progress', '98');
     sendEvent('output', "Files moved successfully.");
     
-    sendEvent('output', "Restarting FrankenPHP...");
-    $restartOutput = shell_exec('killall -USR2 frankenphp 2>&1 || pkill -USR2 frankenphp 2>&1');
-    
-    if ($restartOutput !== null && strlen($restartOutput) > 0) {
-        sendEvent('output', "FrankenPHP restart signal sent.");
-        sendEvent('restart', 'success');
-    } else {
-        sendEvent('output', "Could not auto-restart FrankenPHP. Please run: make restart");
-        sendEvent('restart', 'needed');
-    }
-    
     sendEvent('progress', '100');
     sendEvent('complete', $framework);
     
@@ -250,21 +236,6 @@ function handleDeleteSetup() {
         }
     } else {
         echo json_encode(['success' => true, 'message' => 'setup.php already deleted']);
-    }
-    exit;
-}
-
-function handleRestartFrankenphp() {
-    validateCsrf();
-    header('Content-Type: application/json');
-    
-    $output = shell_exec('killall -USR2 frankenphp 2>&1 || pkill -USR2 frankenphp 2>&1');
-    
-    if ($output !== null && strlen($output) > 0) {
-        echo json_encode(['success' => true, 'message' => 'FrankenPHP restart signal sent']);
-    } else {
-        http_response_code(500);
-        echo json_encode(['success' => false, 'message' => 'Failed to restart FrankenPHP']);
     }
     exit;
 }
@@ -759,21 +730,6 @@ function showUI() {
             font-family: monospace;
         }
 
-        .restart-warning {
-            background: rgba(245, 158, 11, 0.1);
-            border: 1px solid rgba(245, 158, 11, 0.3);
-            border-radius: 10px;
-            padding: 10px;
-            margin: 14px 0;
-            font-size: 0.8rem;
-            color: var(--warning);
-            display: none;
-        }
-
-        .restart-warning.active {
-            display: block;
-        }
-
         .footer {
             font-size: 0.7rem;
             color: var(--text-dim);
@@ -902,12 +858,8 @@ function showUI() {
             <div class="setup-info">
                 Setup page preserved at <code>/setup.php</code> — delete it when you no longer need it.
             </div>
-            <div class="restart-warning" id="restartWarning">
-                ⚠️ FrankenPHP needs to be restarted. Please run: <code>make restart</code>
-            </div>
             <div class="modal-buttons">
                 <button class="btn btn-secondary" id="deleteSetupBtn">Delete setup.php</button>
-                <button class="btn btn-primary" id="restartFrankenBtn" style="display:none;">Restart FrankenPHP</button>
                 <a href="/" class="btn btn-primary" id="goToAppBtn">Go to Application</a>
             </div>
         </div>
@@ -976,13 +928,6 @@ function showUI() {
                         document.getElementById('progressText').textContent = `Installing... ${data}%`;
                         break;
                     
-                    case 'restart':
-                        if (data === 'needed') {
-                            document.getElementById('restartWarning').classList.add('active');
-                            document.getElementById('restartFrankenBtn').style.display = 'inline-flex';
-                        }
-                        break;
-                    
                     case 'complete':
                         eventSource.close();
                         closeModal('progressModal');
@@ -1024,23 +969,6 @@ function showUI() {
             }
         });
 
-        document.getElementById('restartFrankenBtn').addEventListener('click', async () => {
-            try {
-                const response = await fetch(`index.php?action=restart-frankenphp&token=${csrfToken}`, {
-                    method: 'POST'
-                });
-                const data = await response.json();
-                if (data.success) {
-                    document.getElementById('restartWarning').classList.remove('active');
-                    document.getElementById('restartFrankenBtn').style.display = 'none';
-                    alert('FrankenPHP restarted successfully!');
-                } else {
-                    alert('Failed to restart: ' + data.message);
-                }
-            } catch (err) {
-                alert('Error: ' + err.message);
-            }
-        });
     </script>
 
 </body>

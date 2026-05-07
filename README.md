@@ -10,6 +10,11 @@ Modern Docker-based starter kit for PHP applications built on **FrankenPHP** —
 
 ![Banner](docs/img/banner.png)
 
+<p align="center">
+  <img src="docs/img/setup-main.png" width="32%" alt="Setup Wizard">
+  <img src="docs/img/setup-progress.png" width="32%" alt="Installation Progress">
+  <img src="docs/img/setup-success.png" width="32%" alt="Installation Complete">
+</p>
 
 ## Table of Contents
 
