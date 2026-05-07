@@ -7,7 +7,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # System deps
 RUN apk add --no-cache \
-    nodejs npm bash curl git openssh-client \
+    tzdata nodejs npm bash curl git openssh-client \
     linux-headers libpq-dev libzip-dev zlib-dev \
     libxml2-dev icu-dev freetype-dev \
     libjpeg-turbo-dev libpng-dev libwebp-dev
