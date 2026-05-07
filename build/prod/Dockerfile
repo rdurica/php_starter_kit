@@ -2,25 +2,25 @@ FROM dunglas/frankenphp:1-php8.5-alpine AS base
 
 ENV TERM=xterm-256color
 ENV TZ=Europe/Prague
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-RUN apk add --no-cache \
-    bash \
-    curl \
-    netcat-openbsd \
-    libpq-dev \
-    libzip-dev \
-    zlib-dev \
-    libxml2-dev \
-    icu-dev \
-    linux-headers \
-    libjpeg-turbo-dev \
-    libpng-dev \
-    libwebp-dev
-
-RUN install-php-extensions \
-    pdo pdo_mysql mysqli pdo_pgsql pgsql \
-    zip intl bcmath gd sockets
+# System deps + PHP extensions + timezone
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone \
+    && apk add --no-cache \
+        bash \
+        curl \
+        netcat-openbsd \
+        libpq-dev \
+        libzip-dev \
+        zlib-dev \
+        libxml2-dev \
+        icu-dev \
+        linux-headers \
+        libjpeg-turbo-dev \
+        libpng-dev \
+        libwebp-dev \
+    && install-php-extensions \
+        pdo pdo_mysql mysqli pdo_pgsql pgsql \
+        zip intl bcmath gd sockets
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
@@ -42,13 +42,11 @@ RUN adduser -D -u 1000 -s /bin/sh robbyte \
     && chown -R robbyte:robbyte /data /config
 
 COPY build/prod/Caddyfile /etc/caddy/Caddyfile
-COPY build/prod/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+COPY --chmod=755 build/prod/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 # Enable PHP production settings
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 COPY build/prod/opcache-jit.ini "$PHP_INI_DIR/conf.d/opcache-jit.ini"
-
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 WORKDIR /app/src
 COPY --from=vendor /app/src /app/src
