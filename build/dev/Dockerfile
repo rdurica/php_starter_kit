@@ -35,7 +35,7 @@ RUN adduser -D -u 1000 -s /bin/bash robbyte \
     && echo 'alias sf="php bin/console"' >> /home/robbyte/.bashrc \
     && echo 'alias laravel="composer create-project laravel/laravel ."' >> /home/robbyte/.bashrc \
     && echo 'alias nette="composer create-project nette/web-project ."' >> /home/robbyte/.bashrc \
-    && echo "PS1='\e[92m\u\e[0m@\e[94m\h\e[0m:\e[35m\w\e[0m# '" >> /home/robbyte/.bashrc \
+    && echo 'PS1="\e[92m\u\e[0m@\e[94m\h\e[0m:\e[35m\w\e[0m# "' >> /home/robbyte/.bashrc \
     && printf '%s\n' 'if [ -f "$HOME/.bashrc" ]; then' '    . "$HOME/.bashrc"' 'fi' > /home/robbyte/.bash_profile \
     && cp /home/robbyte/.bash_profile /home/robbyte/.profile \
     && chown robbyte:robbyte /home/robbyte/.bashrc /home/robbyte/.bash_profile /home/robbyte/.profile
