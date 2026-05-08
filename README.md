@@ -18,6 +18,7 @@ Modern Docker-based starter kit for PHP applications built on **FrankenPHP** —
 
 ## Table of Contents
 
+- [Quick Start](#quick-start)
 - [Overview](#overview)
 - [Requirements](#requirements)
 - [Available Commands](#available-commands)
@@ -34,7 +35,7 @@ Modern Docker-based starter kit for PHP applications built on **FrankenPHP** —
 git clone https://github.com/rdurica/php_starter_kit.git && cd php_starter_kit && make init
 ```
 
-Then open [https://localhost](https://localhost) (auto-generated certificate).
+Then open [https://localhost](https://localhost) (auto-generated certificate) and select your framework from the setup wizard.
 
 ---
 
@@ -51,9 +52,8 @@ This starter kit provides a ready-to-use, out-of-the-box local development envir
 - **Multi-stage production build** — Minimal attack surface, optimized layers
 - **CI/CD ready** — GitHub Actions with code quality, tests, security scanning
 - **DevContainer support** — VSCode remote containers out of the box
-- **Framework agnostic** — Ready for Laravel, Symfony, and Nette
+- **One-click framework installer** — Web-based setup wizard for Laravel, Symfony, and Nette
 - **Frontend ready** — Node.js and Vite integrated in the dev container
-- **Quality tooling** — PHPStan, PHP CS Fixer, ESLint, Prettier
 
 ## Requirements
 
@@ -62,6 +62,8 @@ This starter kit provides a ready-to-use, out-of-the-box local development envir
 - `sudo` access for trusting local HTTPS certificates
 
 ## Available Commands
+
+Common development tasks are automated via make. These commands manage the Docker containers and development workflow.
 
 | Command | Description |
 |---------|-------------|
@@ -77,20 +79,22 @@ This starter kit provides a ready-to-use, out-of-the-box local development envir
 
 ## Framework Installation
 
-Enter the PHP container and run the installer for your framework:
+After running `make init`, open [https://localhost](https://localhost). The setup wizard will present three framework options:
 
-| Framework | Command | Web Root |
-|-----------|---------|----------|
-| **Laravel** | `laravel` | `src/public` |
-| **Symfony** | `symfony new . --webapp --no-git` | `src/public` |
-| **Nette** | `nette` | `src/www` |
+| Framework | Description |
+|-----------|-------------|
+| **Symfony** | Robust architecture with reusable components |
+| **Laravel** | Expressive syntax and rich ecosystem |
+| **Nette** | Security-focused, Czech-made framework |
 
-```bash
-make php
-# Then run your framework command from the table above
-```
+Click your chosen framework and confirm the installation. The wizard will:
 
-> **Note:** For Nette, update `build/dev/Caddyfile` and change `root` to `/app/src/www`.
+1. Download and install the framework via Composer
+2. Display real-time progress and terminal output
+3. Move files into place automatically (including Nette's `www/` → `public/` migration)
+4. Back up the landing page to `/setup.php`
+
+After installation, you can delete `/setup.php` via the success dialog or manually:
 
 ## Environments
 
@@ -133,17 +137,6 @@ Three GitHub Actions workflows are included:
 | `code-quality.yml` | PHPStan, PHP CS Fixer, Composer audit, Frontend lint |
 | `ci.yml` | Framework auto-detection, PHPUnit tests, Docker lint |
 | `build.yml` | Multi-stage prod image build, GHCR push, Trivy security scan |
-
-## Security
-
-- Non-root user (`robbyte`, UID 1000) in all containers
-- `COMPOSER_ALLOW_SUPERUSER` removed
-- `expose_php = Off` in production
-- Security headers: X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy
-- Session hardening: strict mode, httponly, samesite
-- OPcache and JIT enabled in production
-- Healthcheck on `/up` endpoint
-- Trivy vulnerability scanning in CI
 
 ## License
 

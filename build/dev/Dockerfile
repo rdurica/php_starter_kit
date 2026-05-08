@@ -2,6 +2,7 @@ FROM dunglas/frankenphp:1-php8.5-alpine
 
 ENV TERM=xterm-256color
 ENV TZ=Europe/Prague
+ENV SHELL=/bin/bash
 
 # System deps + PHP extensions + timezone
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone \
@@ -26,7 +27,7 @@ RUN curl -sS https://get.symfony.com/cli/installer | bash -s -- --install-dir=/u
 WORKDIR /app/src
 
 # User setup + aliases
-RUN adduser -D -u 1000 -s /bin/sh robbyte \
+RUN adduser -D -u 1000 -s /bin/bash robbyte \
     && chown -R robbyte:robbyte /data /config \
     && echo 'alias ll="ls -lah"' >> /home/robbyte/.bashrc \
     && echo 'alias c="composer"' >> /home/robbyte/.bashrc \
@@ -34,7 +35,10 @@ RUN adduser -D -u 1000 -s /bin/sh robbyte \
     && echo 'alias sf="php bin/console"' >> /home/robbyte/.bashrc \
     && echo 'alias laravel="composer create-project laravel/laravel ."' >> /home/robbyte/.bashrc \
     && echo 'alias nette="composer create-project nette/web-project ."' >> /home/robbyte/.bashrc \
-    && echo "PS1='\e[92m\u\e[0m@\e[94m\h\e[0m:\e[35m\w\e[0m# '" >> /home/robbyte/.bashrc
+    && echo "PS1='\e[92m\u\e[0m@\e[94m\h\e[0m:\e[35m\w\e[0m# '" >> /home/robbyte/.bashrc \
+    && printf '%s\n' 'if [ -f "$HOME/.bashrc" ]; then' '    . "$HOME/.bashrc"' 'fi' > /home/robbyte/.bash_profile \
+    && cp /home/robbyte/.bash_profile /home/robbyte/.profile \
+    && chown robbyte:robbyte /home/robbyte/.bashrc /home/robbyte/.bash_profile /home/robbyte/.profile
 
 USER robbyte
 

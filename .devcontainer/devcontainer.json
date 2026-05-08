@@ -23,7 +23,13 @@
                 "php.validate.executablePath": "/usr/local/bin/php",
                 "php.debug.idekey": "PHPSTORM",
                 "remote.restoreEditors": false,
-                "workbench.startupEditor": "none"
+                "workbench.startupEditor": "none",
+                "terminal.integrated.defaultProfile.linux": "bash",
+                "terminal.integrated.profiles.linux": {
+                    "bash": {
+                        "path": "/bin/bash"
+                    }
+                }
             }
         }
     }
