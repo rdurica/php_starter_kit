@@ -25,9 +25,6 @@ jobs:
       - name: Validate CI Compose config
         run: docker compose -f compose.ci.yaml config
 
-      - name: Validate demo Compose config
-        run: docker compose -f compose.demo.yaml config
-
   tests:
     name: Framework Tests
     runs-on: ubuntu-latest

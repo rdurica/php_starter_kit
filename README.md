@@ -48,7 +48,7 @@ This starter kit provides a ready-to-use, out-of-the-box local development envir
 
 - **FrankenPHP** — Modern PHP application server with HTTP/2, HTTP/3, and automatic HTTPS
 - **Secure by default** — Non-root user, security headers, hardened sessions, no `expose_php`
-- **Multi-environment** — Dev, CI, and Demo configurations
+- **Multi-environment** — Dev and CI configurations
 - **Multi-stage production build** — Minimal attack surface, optimized layers
 - **CI/CD ready** — GitHub Actions with code quality, tests, security scanning
 - **DevContainer support** — VSCode remote containers out of the box
@@ -109,23 +109,12 @@ After installation, you can delete `/setup.php` via the success dialog or manual
 - SQLite in-memory for fast tests
 - Ideal for GitHub Actions
 
-### Demo (`compose.demo.yaml`)
-- Self-contained stack with PostgreSQL and Redis
-- Uses prebuilt GHCR image
-- Port 8080 on host
-
 ## Production
 
 Build the production image:
 
 ```bash
 docker build -f build/prod/Dockerfile -t myapp:latest .
-```
-
-Run with the demo stack:
-
-```bash
-docker compose -f compose.demo.yaml up
 ```
 
 ## CI/CD

@@ -47,16 +47,6 @@ def main():
             ],
         ),
         (
-            "compose.demo.yaml",
-            [
-                (r"php-starter-kit-demo:local", f"{kebab}-demo:local"),
-                (r"POSTGRES_DB: starter_kit", f"POSTGRES_DB: {snake}"),
-                (r"POSTGRES_USER: starter_kit", f"POSTGRES_USER: {snake}"),
-                (r"POSTGRES_PASSWORD: starter_kit_demo_only", f"POSTGRES_PASSWORD: {snake}_demo_only"),
-                (r"pg_isready -U starter_kit", f"pg_isready -U {snake}"),
-            ],
-        ),
-        (
             ".devcontainer/devcontainer.json",
             [
                 ('"name": "PHP Starter Kit"', f'"name": "{title}"'),
@@ -68,15 +58,6 @@ def main():
             [
                 (r"exec --user=robbyte frankenphp", f"exec --user=robbyte {kebab}"),
                 (r"exec frankenphp cat", f"exec {kebab} cat"),
-            ],
-        ),
-        (
-            "demo.env",
-            [
-                ("APP_NAME=PHPStarterKit", f"APP_NAME={pascal}"),
-                ("DB_DATABASE=starter_kit", f"DB_DATABASE={snake}"),
-                ("DB_USERNAME=starter_kit", f"DB_USERNAME={snake}"),
-                ("DB_PASSWORD=starter_kit_demo_only", f"DB_PASSWORD={snake}_demo_only"),
             ],
         ),
         (
