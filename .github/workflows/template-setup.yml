@@ -1,0 +1,51 @@
+name: Template Setup
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  rename:
+    name: Rename from template
+    runs-on: ubuntu-latest
+    if: github.repository != 'rdurica/php_starter_kit'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check if already configured
+        id: check
+        run: |
+          if [ -f ".template-configured" ]; then
+            echo "already_configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "already_configured=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run rename script
+        if: steps.check.outputs.already_configured == 'false'
+        run: python3 .github/scripts/rename-template.py
+
+      - name: Commit and push renamed files
+        if: steps.check.outputs.already_configured == 'false'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore: rename project from template [skip ci]"
+          git push
+
+      - name: Remove template setup files
+        if: steps.check.outputs.already_configured == 'false'
+        run: |
+          git rm .github/workflows/template-setup.yml
+          git rm -rf .github/scripts
+          git commit -m "chore: remove template setup workflow [skip ci]"
+          git push
