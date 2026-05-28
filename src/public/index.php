@@ -11,9 +11,6 @@ switch ($action) {
     case 'install':
         handleInstall();
         break;
-    case 'delete-setup':
-        handleDeleteSetup();
-        break;
     default:
         showUI();
         break;
@@ -123,11 +120,6 @@ function handleInstall() {
     sendEvent('progress', '95');
     sendEvent('output', "Installation completed. Moving files...");
     
-    if (file_exists($projectDir . '/public/index.php')) {
-        copy($projectDir . '/public/index.php', $projectDir . '/public/setup.php');
-        sendEvent('output', "Landing page backed up to /setup.php");
-    }
-    
     $iterator = new RecursiveIteratorIterator(
         new RecursiveDirectoryIterator($tmpDir, RecursiveDirectoryIterator::SKIP_DOTS),
         RecursiveIteratorIterator::SELF_FIRST
@@ -187,8 +179,20 @@ function handleInstall() {
         sendEvent('output', "Nette www/ → public/ move completed.");
     }
     
+    // Remove the setup wizard so only the framework remains.
+    // The framework's own public/index.php has already replaced this script;
+    // also drop any leftover setup.php from previous template runs.
+    $leftovers = [
+        $projectDir . '/public/setup.php',
+    ];
+    foreach ($leftovers as $leftover) {
+        if (file_exists($leftover)) {
+            unlink($leftover);
+        }
+    }
+    
     sendEvent('progress', '98');
-    sendEvent('output', "Files moved successfully.");
+    sendEvent('output', "Files moved successfully. Setup wizard removed.");
     
     sendEvent('progress', '100');
     sendEvent('complete', $framework);
