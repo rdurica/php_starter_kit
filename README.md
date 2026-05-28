@@ -8,12 +8,13 @@ Modern Docker-based starter kit for PHP applications built on **FrankenPHP** —
 [![Tests](https://github.com/rdurica/php_starter_kit/actions/workflows/ci.yaml/badge.svg)](https://github.com/rdurica/php_starter_kit/actions)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-![Banner](docs/img/banner.png)
+<!-- Placeholder images — replace docs/img/{main,1,2,3}.png with your own. -->
+![Banner](docs/img/main.png)
 
 <p align="center">
-  <img src="docs/img/setup-main.png" width="32%" alt="Setup Wizard">
-  <img src="docs/img/setup-progress.png" width="32%" alt="Installation Progress">
-  <img src="docs/img/setup-success.png" width="32%" alt="Installation Complete">
+  <img src="docs/img/1.png" width="32%" alt="Screenshot 1">
+  <img src="docs/img/2.png" width="32%" alt="Screenshot 2">
+  <img src="docs/img/3.png" width="32%" alt="Screenshot 3">
 </p>
 
 ## Table of Contents
@@ -92,9 +93,9 @@ Click your chosen framework and confirm the installation. The wizard will:
 1. Download and install the framework via Composer
 2. Display real-time progress and terminal output
 3. Move files into place automatically (including Nette's `www/` → `public/` migration)
-4. Back up the landing page to `/setup.php`
+4. Remove itself once the framework's own entry point takes over
 
-After installation, you can delete `/setup.php` via the success dialog or manually:
+After installation the setup wizard is gone and your application is served from `/`. From here the repository is yours — fill in the sections below and the placeholder screenshots in `docs/img/` with your own project content.
 
 ## Environments
 

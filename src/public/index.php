@@ -11,9 +11,6 @@ switch ($action) {
     case 'install':
         handleInstall();
         break;
-    case 'delete-setup':
-        handleDeleteSetup();
-        break;
     default:
         showUI();
         break;
@@ -123,11 +120,6 @@ function handleInstall() {
     sendEvent('progress', '95');
     sendEvent('output', "Installation completed. Moving files...");
     
-    if (file_exists($projectDir . '/public/index.php')) {
-        copy($projectDir . '/public/index.php', $projectDir . '/public/setup.php');
-        sendEvent('output', "Landing page backed up to /setup.php");
-    }
-    
     $iterator = new RecursiveIteratorIterator(
         new RecursiveDirectoryIterator($tmpDir, RecursiveDirectoryIterator::SKIP_DOTS),
         RecursiveIteratorIterator::SELF_FIRST
@@ -187,8 +179,20 @@ function handleInstall() {
         sendEvent('output', "Nette www/ → public/ move completed.");
     }
     
+    // Remove the setup wizard so only the framework remains.
+    // The framework's own public/index.php has already replaced this script;
+    // also drop any leftover setup.php from previous template runs.
+    $leftovers = [
+        $projectDir . '/public/setup.php',
+    ];
+    foreach ($leftovers as $leftover) {
+        if (file_exists($leftover)) {
+            unlink($leftover);
+        }
+    }
+    
     sendEvent('progress', '98');
-    sendEvent('output', "Files moved successfully.");
+    sendEvent('output', "Files moved successfully. Setup wizard removed.");
     
     sendEvent('progress', '100');
     sendEvent('complete', $framework);
@@ -220,24 +224,6 @@ function cleanup($lockFile, $tmpDir) {
         }
         rmdir($tmpDir);
     }
-}
-
-function handleDeleteSetup() {
-    validateCsrf();
-    header('Content-Type: application/json');
-    
-    $setupFile = '/app/src/public/setup.php';
-    if (file_exists($setupFile)) {
-        if (unlink($setupFile)) {
-            echo json_encode(['success' => true, 'message' => 'setup.php deleted']);
-        } else {
-            http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Failed to delete setup.php']);
-        }
-    } else {
-        echo json_encode(['success' => true, 'message' => 'setup.php already deleted']);
-    }
-    exit;
 }
 
 function showUI() {
@@ -838,7 +824,7 @@ function showUI() {
             <h3 class="modal-title" id="confirmTitle">Install Framework?</h3>
             <p class="modal-text" id="confirmText">
                 This will download and install the framework into your project.<br>
-                Your current landing page will be preserved at <code>/setup.php</code>.
+                This setup wizard will be removed once the installation completes.
             </p>
             <div class="modal-buttons">
                 <button class="btn btn-secondary" onclick="closeModal('confirmModal')">Cancel</button>
@@ -866,10 +852,9 @@ function showUI() {
             <h3 class="modal-title" id="successTitle">Installation Complete!</h3>
             <p class="modal-text" id="successText">Your framework has been installed successfully.</p>
             <div class="setup-info">
-                Setup page preserved at <code>/setup.php</code> — delete it when you no longer need it.
+                The setup wizard has been removed. Your application now lives at <code>/</code>.
             </div>
             <div class="modal-buttons">
-                <button class="btn btn-secondary" id="deleteSetupBtn">Delete setup.php</button>
                 <a href="/" class="btn btn-primary" id="goToAppBtn">Go to Application</a>
             </div>
         </div>
@@ -961,23 +946,6 @@ function showUI() {
                 alert('Connection lost. Please check if the installation is still running.');
             };
         }
-
-        document.getElementById('deleteSetupBtn').addEventListener('click', async () => {
-            try {
-                const response = await fetch(`index.php?action=delete-setup&token=${csrfToken}`, {
-                    method: 'POST'
-                });
-                const data = await response.json();
-                if (data.success) {
-                    document.getElementById('deleteSetupBtn').style.display = 'none';
-                    document.querySelector('.setup-info').textContent = 'Setup page deleted.';
-                } else {
-                    alert('Failed to delete setup.php: ' + data.message);
-                }
-            } catch (err) {
-                alert('Error: ' + err.message);
-            }
-        });
 
     </script>
 
