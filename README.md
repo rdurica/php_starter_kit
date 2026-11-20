@@ -1,3 +1,15 @@
+> [!CAUTION]
+> **This repository is UNSUPPORTED and deprecated.**
+>
+> It has been split into two active repositories so shared Docker and CI/CD infrastructure can be updated centrally across all applications:
+>
+> - **[rdurica/php-starter-kit](https://github.com/rdurica/php-starter-kit)** — Lightweight GitHub Template repository for starting new Laravel, Symfony, or Nette applications.
+> - **[rdurica/php-platform](https://github.com/rdurica/php-platform)** — Shared FrankenPHP / PHP Docker base images (`prod`, `ci`, `dev`), GitHub Reusable Workflows, and Renovate preset.
+>
+> Please use **[rdurica/php-starter-kit](https://github.com/rdurica/php-starter-kit)** for all new projects. No further updates will be published to this repository.
+
+---
+
 # PHP Starter Kit
 
 Modern Docker-based starter kit for PHP applications built on **FrankenPHP** — a Caddy-powered PHP server with HTTP/2, HTTP/3, and automatic HTTPS.
